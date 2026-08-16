@@ -136,7 +136,10 @@ class _SearchBarButton extends StatelessWidget {
             children: [
               Icon(Icons.search_rounded, color: AppColors.textSecondary),
               SizedBox(width: 10),
-              Text('Movies, Events, Metro...', style: AppTypography.bodyMedium),
+              Text(
+                context.tr('Movies, Events, Metro...'),
+                style: AppTypography.bodyMedium,
+              ),
               Spacer(),
               Icon(Icons.mic_none_rounded, color: AppColors.textSecondary),
             ],

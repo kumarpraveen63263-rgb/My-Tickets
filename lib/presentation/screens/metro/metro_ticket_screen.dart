@@ -27,13 +27,15 @@ class MetroTicketScreen extends ConsumerWidget {
           onPressed: () => context.pop(),
           icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: Text('Metro Ticket'),
+        title: Text(context.tr('Metro Ticket')),
       ),
       body: bookingAsync.when(
         loading: () => AppLoader(color: AppColors.accentMetro),
-        error: (_, _) => Center(child: Text('Failed to load ticket')),
+        error: (_, _) =>
+            Center(child: Text(context.tr('Failed to load ticket'))),
         data: (booking) {
-          if (booking == null) return Center(child: Text('Ticket not found'));
+          if (booking == null)
+            return Center(child: Text(context.tr('Ticket not found')));
           final validUntil = booking.createdAt.add(
             Duration(minutes: AppConstants.metroTicketValidMinutes),
           );

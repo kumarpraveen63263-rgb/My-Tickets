@@ -15,6 +15,7 @@ import '../../../data/models/ticket_model.dart';
 import '../../../data/repositories/booking_repository.dart';
 import '../../../providers/booking_provider.dart';
 import '../../../providers/offer_provider.dart';
+import '../../../providers/metro_favourites_provider.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/app_text_field.dart';
 
@@ -96,6 +97,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         .read(bookingRepositoryProvider)
         .createBooking(booking);
     if (!mounted) return;
+    if (draft.type == BookingType.metro &&
+        draft.fromStation != null &&
+        draft.toStation != null) {
+      await ref
+          .read(metroFavouriteRoutesProvider.notifier)
+          .add(metroRouteKey(draft.fromStation!, draft.toStation!));
+    }
     ref.read(lastBookingProvider.notifier).state = created;
     ref.invalidate(allBookingsProvider);
     ref.read(appliedOfferCodeProvider.notifier).state = null;

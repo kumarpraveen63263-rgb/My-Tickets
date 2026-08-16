@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'content_translations.dart';
+import 'ui_translation_additions.dart';
 
 class AppLocaleScope extends InheritedWidget {
   const AppLocaleScope({
@@ -17,6 +18,7 @@ class AppLocaleScope extends InheritedWidget {
 
   String translate(String value) {
     return translations[languageCode]?[value] ??
+        additionalUiTranslations[languageCode]?[value] ??
         translateContent(languageCode, value);
   }
 
@@ -293,6 +295,7 @@ class AppLocale {
 
   static String tr(String value) {
     return AppLocaleScope.translations[languageCode]?[value] ??
+        additionalUiTranslations[languageCode]?[value] ??
         translateContent(languageCode, value);
   }
 }

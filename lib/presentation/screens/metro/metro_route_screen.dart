@@ -66,18 +66,24 @@ class MetroRouteScreen extends ConsumerWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: _infoCard('Stations', '${route.stations.length}'),
+                      child: _infoCard(
+                        context.tr('Stations'),
+                        '${route.stations.length}',
+                      ),
                     ),
                     SizedBox(width: 10),
                     Expanded(
                       child: _infoCard(
-                        'Travel Time',
+                        context.tr('Travel Time'),
                         '${route.travelMinutes} min',
                       ),
                     ),
                     SizedBox(width: 10),
                     Expanded(
-                      child: _infoCard('Interchanges', '${route.interchanges}'),
+                      child: _infoCard(
+                        context.tr('Interchanges'),
+                        '${route.interchanges}',
+                      ),
                     ),
                   ],
                 ),
@@ -95,12 +101,12 @@ class MetroRouteScreen extends ConsumerWidget {
                     children: [
                       _fareRow('Base fare', 10),
                       _fareRow(
-                        'Distance fare',
+                        context.tr('Distance fare'),
                         (route.fare - 10).toDouble().clamp(0, double.infinity),
                       ),
                       Divider(height: 20),
                       _fareRow(
-                        'Total (per passenger)',
+                        context.tr('Total (per passenger)'),
                         route.fare.toDouble(),
                         bold: true,
                       ),
@@ -137,7 +143,7 @@ class MetroRouteScreen extends ConsumerWidget {
                 SizedBox(height: AppDimensions.paddingLarge),
                 AppButton(
                   label:
-                      'Book Tickets (${CurrencyUtils.format(route.fare * passengers)})',
+                      "${context.tr('Book Tickets')} (${CurrencyUtils.format(route.fare * passengers)})",
                   accentColor: AppColors.accentMetro,
                   onPressed: () {
                     ref

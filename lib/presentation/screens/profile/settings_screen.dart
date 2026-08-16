@@ -55,12 +55,14 @@ class SettingsScreen extends ConsumerWidget {
               style: AppTypography.bodyLarge,
             ),
             subtitle: Text(
-              'MyTickets is designed dark-first for the best viewing experience',
+              context.tr(
+                'MyTickets is designed dark-first for the best viewing experience',
+              ),
               style: AppTypography.caption,
             ),
           ),
           SizedBox(height: AppDimensions.paddingLarge),
-          _sectionTitle('Notifications'),
+          _sectionTitle(context.tr('Notifications')),
           StatefulBuilder(
             builder: (context, setLocalState) => SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -70,9 +72,12 @@ class SettingsScreen extends ConsumerWidget {
                 await storage.setNotificationsEnabled(v);
                 setLocalState(() {});
               },
-              title: Text('Push Notifications', style: AppTypography.bodyLarge),
+              title: Text(
+                context.tr('Push Notifications'),
+                style: AppTypography.bodyLarge,
+              ),
               subtitle: Text(
-                'Booking updates, reminders and offers',
+                context.tr('Booking updates, reminders and offers'),
                 style: AppTypography.caption,
               ),
             ),

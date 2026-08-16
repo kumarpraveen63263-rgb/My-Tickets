@@ -28,5 +28,12 @@ class MetroFavouriteRoutesNotifier extends StateNotifier<Set<String>> {
     await _storage.saveFavouriteMetroRoutes(next.toList());
   }
 
+  Future<void> add(String routeKey) async {
+    if (state.contains(routeKey)) return;
+    final next = {...state, routeKey};
+    state = next;
+    await _storage.saveFavouriteMetroRoutes(next.toList());
+  }
+
   bool contains(String routeKey) => state.contains(routeKey);
 }

@@ -53,7 +53,7 @@ class _StationSearchScreenState extends ConsumerState<StationSearchScreen> {
           onPressed: () => context.pop(),
           icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: Text('Select Station'),
+        title: Text(context.tr('Select Station')),
       ),
       body: Column(
         children: [

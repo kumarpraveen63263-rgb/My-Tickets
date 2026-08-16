@@ -120,7 +120,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Recent Searches', style: AppTypography.titleLarge),
+              Text(
+                context.tr('Recent Searches'),
+                style: AppTypography.titleLarge,
+              ),
               GestureDetector(
                 onTap: () => ref.read(recentSearchesProvider.notifier).clear(),
                 child: Text(
@@ -151,7 +154,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           ),
           SizedBox(height: AppDimensions.paddingLarge),
         ],
-        Text('Trending Searches', style: AppTypography.titleLarge),
+        Text(context.tr('Trending Searches'), style: AppTypography.titleLarge),
         SizedBox(height: AppDimensions.paddingSmall),
         Wrap(
           spacing: 8,
@@ -212,7 +215,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           SizedBox(height: AppDimensions.paddingLarge),
         ],
         if (showMetro && results.stations.isNotEmpty) ...[
-          Text('Metro Stations', style: AppTypography.titleLarge),
+          Text(context.tr('Metro Stations'), style: AppTypography.titleLarge),
           SizedBox(height: AppDimensions.paddingSmall),
           ...results.stations.map((s) => _stationTile(s)),
         ],

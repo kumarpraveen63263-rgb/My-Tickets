@@ -38,13 +38,15 @@ class TicketDetailScreen extends ConsumerWidget {
           onPressed: () => context.pop(),
           icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: Text('Ticket'),
+        title: Text(context.tr('Ticket')),
       ),
       body: bookingAsync.when(
         loading: () => AppLoader(),
-        error: (_, _) => Center(child: Text('Failed to load ticket')),
+        error: (_, _) =>
+            Center(child: Text(context.tr('Failed to load ticket'))),
         data: (booking) {
-          if (booking == null) return Center(child: Text('Ticket not found'));
+          if (booking == null)
+            return Center(child: Text(context.tr('Ticket not found')));
           final accent = _accentFor(booking.type);
           return ListView(
             padding: EdgeInsets.only(bottom: AppDimensions.paddingLarge),
@@ -78,7 +80,9 @@ class TicketDetailScreen extends ConsumerWidget {
                           ..showSnackBar(
                             SnackBar(
                               content: Text(
-                                'Ticket saved to My Tickets for offline access',
+                                context.tr(
+                                  'Ticket saved to My Tickets for offline access',
+                                ),
                               ),
                             ),
                           ),
