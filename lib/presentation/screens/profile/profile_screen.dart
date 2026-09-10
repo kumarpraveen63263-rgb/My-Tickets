@@ -1,4 +1,4 @@
-import '../../../core/localization/app_localizations.dart';
+﻿import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -160,6 +160,12 @@ class ProfileScreen extends ConsumerWidget {
           _sectionTitle('App'),
           _tile(
             context,
+            Icons.analytics_outlined,
+            'Ticket Report',
+            () => context.push('/profile/report'),
+          ),
+          _tile(
+            context,
             Icons.settings_outlined,
             'Settings',
             () => context.push('/profile/settings'),
@@ -250,3 +256,4 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 }
+

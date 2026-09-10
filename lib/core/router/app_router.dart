@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../presentation/navigation/main_navigation.dart';
 import '../../presentation/screens/auth/login_screen.dart';
@@ -21,6 +21,7 @@ import '../../presentation/screens/movies/theatre_list_screen.dart';
 import '../../presentation/screens/onboarding/onboarding_screen.dart';
 import '../../presentation/screens/profile/edit_profile_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
+import '../../presentation/screens/profile/ticket_report_screen.dart';
 import '../../presentation/screens/profile/settings_screen.dart';
 import '../../presentation/screens/search/search_screen.dart';
 import '../../presentation/screens/splash/splash_screen.dart';
@@ -242,6 +243,12 @@ class AppRouter {
       ),
       GoRoute(
         parentNavigatorKey: _rootKey,
+        path: '/profile/report',
+        pageBuilder: (context, state) =>
+            AppTransitions.sharedAxis(state, const TicketReportScreen()),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootKey,
         path: '/profile/settings',
         pageBuilder: (context, state) =>
             AppTransitions.sharedAxis(state, SettingsScreen()),
@@ -251,3 +258,4 @@ class AppRouter {
         Scaffold(body: Center(child: Text('Page not found: ${state.uri}'))),
   );
 }
+

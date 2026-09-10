@@ -6,13 +6,13 @@ import 'app_typography.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get darkTheme {
+  static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.background,
       canvasColor: AppColors.background,
-      colorScheme: const ColorScheme.dark(
+      colorScheme: const ColorScheme.light(
         primary: AppColors.accentMovie,
         secondary: AppColors.accentEvent,
         surface: AppColors.surface,
@@ -23,24 +23,27 @@ class AppTheme {
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         centerTitle: false,
-        titleTextStyle: AppTypography.headline,
+        titleTextStyle: AppTypography.headline.copyWith(
+          color: AppColors.textPrimary,
+        ),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
       textTheme: TextTheme(
-        displayLarge: AppTypography.displayLarge,
-        displayMedium: AppTypography.displayMedium,
-        displaySmall: AppTypography.displaySmall,
-        headlineSmall: AppTypography.headline,
-        titleLarge: AppTypography.titleLarge,
-        titleMedium: AppTypography.titleMedium,
-        bodyLarge: AppTypography.bodyLarge,
-        bodyMedium: AppTypography.bodyMedium,
-        bodySmall: AppTypography.bodySmall,
-        labelSmall: AppTypography.caption,
+        displayLarge: AppTypography.displayLarge.copyWith(color: AppColors.textPrimary),
+        displayMedium: AppTypography.displayMedium.copyWith(color: AppColors.textPrimary),
+        displaySmall: AppTypography.displaySmall.copyWith(color: AppColors.textPrimary),
+        headlineSmall: AppTypography.headline.copyWith(color: AppColors.textPrimary),
+        titleLarge: AppTypography.titleLarge.copyWith(color: AppColors.textPrimary),
+        titleMedium: AppTypography.titleMedium.copyWith(color: AppColors.textPrimary),
+        bodyLarge: AppTypography.bodyLarge.copyWith(color: AppColors.textPrimary),
+        bodyMedium: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimary),
+        bodySmall: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+        labelSmall: AppTypography.caption.copyWith(color: AppColors.textSecondary),
       ),
       cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: AppDimensions.cardElevation,
+        shadowColor: Colors.black.withValues(alpha: 0.08),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
           side: const BorderSide(color: AppColors.border),
@@ -59,9 +62,9 @@ class AppTheme {
         ),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.surfaceElevated,
+        backgroundColor: AppColors.textPrimary,
         contentTextStyle: AppTypography.bodyMedium.copyWith(
-          color: AppColors.textPrimary,
+          color: Colors.white,
         ),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
@@ -95,4 +98,7 @@ class AppTheme {
       fontFamily: AppTypography.bodyMedium.fontFamily,
     );
   }
+
+  /// Keep a reference so existing code that mentions `darkTheme` still compiles.
+  static ThemeData get darkTheme => lightTheme;
 }

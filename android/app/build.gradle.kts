@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mytick"
+    namespace = "com.myticket.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.mytick"
+        applicationId = "com.myticket.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         // google_maps_flutter requires minSdk 21+; never go below Flutter's own floor.
