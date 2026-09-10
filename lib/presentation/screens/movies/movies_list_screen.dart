@@ -19,7 +19,7 @@ class MoviesListScreen extends ConsumerWidget {
   /// back button is hidden. When pushed from elsewhere it shows normally.
   final bool isTab;
 
-  MoviesListScreen({super.key, this.isTab = false});
+  const MoviesListScreen({super.key, this.isTab = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,7 +35,7 @@ class MoviesListScreen extends ConsumerWidget {
             ? null
             : IconButton(
                 onPressed: () => context.pop(),
-                icon: Icon(Icons.arrow_back_rounded),
+                icon: const Icon(Icons.arrow_back_rounded),
               ),
       ),
       body: Column(
@@ -44,14 +44,14 @@ class MoviesListScreen extends ConsumerWidget {
             height: 44,
             child: ListView(
               scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: AppDimensions.paddingMedium,
               ),
               children:
                   ['All', 'Now Showing', 'Upcoming', 'Tamil', 'Telugu', 'Hindi']
                       .map(
                         (f) => Padding(
-                          padding: EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.only(right: 8),
                           child: AppChip(
                             label: f,
                             isSelected: filter == f,
@@ -64,14 +64,14 @@ class MoviesListScreen extends ConsumerWidget {
                       .toList(),
             ),
           ),
-          SizedBox(height: AppDimensions.paddingSmall),
+          const SizedBox(height: AppDimensions.paddingSmall),
           Expanded(
             child: moviesAsync.when(
               loading: () => GridView.count(
                 crossAxisCount: 2,
-                padding: EdgeInsets.all(AppDimensions.paddingMedium),
+                padding: const EdgeInsets.all(AppDimensions.paddingMedium),
                 childAspectRatio: 0.55,
-                children: List.generate(6, (_) => ShimmerMovieCard()),
+                children: List.generate(6, (_) => const ShimmerMovieCard()),
               ),
               error: (_, _) => AppErrorWidget(
                 onRetry: () => ref.invalidate(allMoviesProvider),
@@ -82,22 +82,26 @@ class MoviesListScreen extends ConsumerWidget {
                   return AppEmptyState(
                     icon: Icons.movie_filter_outlined,
                     title: context.tr('No movies found'),
+                    subtitle: 'Try changing the filter or search for other movies',
                   );
                 }
                 return RefreshIndicator(
                   color: AppColors.accentMovie,
                   onRefresh: () async {
                     ref.invalidate(allMoviesProvider);
-                    await Future.delayed(Duration(milliseconds: 500));
+                    await Future.delayed(const Duration(milliseconds: 500));
                   },
                   child: GridView.builder(
-                    padding: EdgeInsets.fromLTRB(
+                    padding: const EdgeInsets.fromLTRB(
                       AppDimensions.paddingMedium,
                       0,
                       AppDimensions.paddingMedium,
                       AppDimensions.bottomPadding,
                     ),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio: 0.52,
                       crossAxisSpacing: 12,

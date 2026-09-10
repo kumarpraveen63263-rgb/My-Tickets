@@ -18,13 +18,13 @@ class ShimmerBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: AppColors.surfaceElevated,
-      highlightColor: AppColors.border,
+      baseColor: AppColors.shimmerBase,
+      highlightColor: AppColors.shimmerHighlight,
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.shimmerBase,
           borderRadius: BorderRadius.circular(radius),
         ),
       ),

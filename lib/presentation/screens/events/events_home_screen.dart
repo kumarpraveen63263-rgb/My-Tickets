@@ -23,7 +23,7 @@ import '../../widgets/events/event_list_row.dart';
 import '../../widgets/events/events_search_bar.dart';
 import '../../widgets/home/home_header.dart' show notificationsProvider;
 
-final _kSectionPadding = EdgeInsets.fromLTRB(
+const _kSectionPadding = EdgeInsets.fromLTRB(
   AppDimensions.paddingMedium,
   AppDimensions.paddingLarge,
   AppDimensions.paddingMedium,
@@ -63,43 +63,44 @@ List<EventModel> _filterByCategory(List<EventModel> events, String? slug) {
   return events.where((e) => e.categorySlug == slug).toList();
 }
 
-/// Events tab root — the Discover screen. Layout/component design follows
-/// the reference spec (circular category chips, hero carousel, date-badge
-/// cards, near-you rows, recommended grid); colors reuse the app's existing
-/// dark palette (accentEvent as the section's accent) rather than the
-/// reference's light theme, per explicit instruction to keep the palette.
 class EventsHomeScreen extends ConsumerWidget {
-  EventsHomeScreen({super.key});
+  const EventsHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SafeArea(
-      bottom: false,
-      child: RefreshIndicator(
-        color: AppColors.accentEvent,
-        onRefresh: () async {
-          ref.invalidate(eventsProvider);
-          ref.invalidate(featuredEventsProvider);
-          ref.invalidate(upcomingEventsProvider);
-          ref.invalidate(recommendedEventsProvider);
-          ref.invalidate(nearbyEventsProvider);
-          await Future.delayed(Duration(milliseconds: 600));
-        },
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            _EventsHeader(),
-            SizedBox(height: AppDimensions.paddingSmall),
-            _SearchBarSection(),
-            SizedBox(height: AppDimensions.paddingLarge),
-            _CategoryChipRow(),
-            SizedBox(height: AppDimensions.paddingSmall),
-            _HeroSection(),
-            _UpcomingSection(),
-            _NearYouSection(),
-            _RecommendedSection(),
-            SizedBox(height: AppDimensions.bottomPadding),
-          ],
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        bottom: false,
+        child: RefreshIndicator(
+          color: AppColors.accentEvent,
+          onRefresh: () async {
+            ref.invalidate(eventsProvider);
+            ref.invalidate(featuredEventsProvider);
+            ref.invalidate(upcomingEventsProvider);
+            ref.invalidate(recommendedEventsProvider);
+            ref.invalidate(nearbyEventsProvider);
+            await Future.delayed(const Duration(milliseconds: 600));
+          },
+          child: ListView(
+            padding: EdgeInsets.zero,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            children: const [
+              _EventsHeader(),
+              SizedBox(height: AppDimensions.paddingSmall),
+              _SearchBarSection(),
+              SizedBox(height: AppDimensions.paddingLarge),
+              _CategoryChipRow(),
+              SizedBox(height: AppDimensions.paddingSmall),
+              _HeroSection(),
+              _UpcomingSection(),
+              _NearYouSection(),
+              _RecommendedSection(),
+              SizedBox(height: AppDimensions.bottomPadding),
+            ],
+          ),
         ),
       ),
     );
@@ -107,7 +108,7 @@ class EventsHomeScreen extends ConsumerWidget {
 }
 
 class _EventsHeader extends ConsumerWidget {
-  _EventsHeader();
+  const _EventsHeader();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -118,7 +119,7 @@ class _EventsHeader extends ConsumerWidget {
     );
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         AppDimensions.paddingMedium,
         AppDimensions.paddingSmall,
         AppDimensions.paddingMedium,
@@ -132,17 +133,17 @@ class _EventsHeader extends ConsumerWidget {
               Expanded(
                 child: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.location_on_rounded,
                       color: AppColors.accentEvent,
                       size: 18,
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     Text(
                       AppConstants.defaultCity.split(',').first,
                       style: AppTypography.titleMedium,
                     ),
-                    Icon(
+                    const Icon(
                       Icons.keyboard_arrow_down_rounded,
                       color: AppColors.textSecondary,
                       size: 20,
@@ -157,11 +158,11 @@ class _EventsHeader extends ConsumerWidget {
                   child: Container(
                     width: 44,
                     height: 44,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppColors.surfaceElevated,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.notifications_none_rounded,
                       color: AppColors.textPrimary,
                     ),
@@ -170,11 +171,11 @@ class _EventsHeader extends ConsumerWidget {
               ),
             ],
           ),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           RichText(
             text: TextSpan(
               style: AppTypography.displayMedium.copyWith(height: 1.15),
-              children: [
+              children: const [
                 TextSpan(text: 'Discover '),
                 TextSpan(
                   text: 'experiences',
@@ -200,7 +201,7 @@ class _EventsHeader extends ConsumerWidget {
       context,
       title: AppLocale.tr('Notifications'),
       child: notifications.when(
-        loading: () => SizedBox(
+        loading: () => const SizedBox(
           height: 120,
           child: Center(child: CircularProgressIndicator()),
         ),
@@ -223,7 +224,7 @@ class _EventsHeader extends ConsumerWidget {
           return ListView.separated(
             shrinkWrap: true,
             itemCount: list.length,
-            separatorBuilder: (_, _) => Divider(height: 1),
+            separatorBuilder: (_, _) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final n = list[index];
               return ListTile(
@@ -252,12 +253,12 @@ class _EventsHeader extends ConsumerWidget {
 }
 
 class _SearchBarSection extends StatelessWidget {
-  _SearchBarSection();
+  const _SearchBarSection();
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
       child: EventsSearchBar(
         onTap: () => context.push('/events/search'),
         onFilterTap: () => _showFilterSheet(context),
@@ -298,7 +299,7 @@ class _SearchBarSection extends StatelessWidget {
 }
 
 class _CategoryChipRow extends ConsumerWidget {
-  _CategoryChipRow();
+  const _CategoryChipRow();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -308,9 +309,10 @@ class _CategoryChipRow extends ConsumerWidget {
       height: 100,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
         itemCount: _kCategories.length + 1,
-        separatorBuilder: (_, _) => SizedBox(width: 14),
+        separatorBuilder: (_, _) => const SizedBox(width: 14),
         itemBuilder: (context, i) {
           if (i == _kCategories.length) {
             return CategoryChipWidget(
@@ -336,16 +338,16 @@ class _CategoryChipRow extends ConsumerWidget {
 }
 
 class _HeroSection extends ConsumerWidget {
-  _HeroSection();
+  const _HeroSection();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final featured = ref.watch(featuredEventsProvider);
     return featured.when(
-      loading: () => ShimmerEventHero(),
-      error: (_, _) => SizedBox.shrink(),
+      loading: () => const ShimmerEventHero(),
+      error: (_, _) => const SizedBox.shrink(),
       data: (events) {
-        if (events.isEmpty) return SizedBox.shrink();
+        if (events.isEmpty) return const SizedBox.shrink();
         return EventHeroBanner(
           events: events,
           onTap: (e) => context.push('/events/${e.id}'),
@@ -356,7 +358,7 @@ class _HeroSection extends ConsumerWidget {
 }
 
 class _UpcomingSection extends ConsumerWidget {
-  _UpcomingSection();
+  const _UpcomingSection();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -373,7 +375,7 @@ class _UpcomingSection extends ConsumerWidget {
         events.when(
           loading: () => ShimmerList(
             height: EventCardSmall.totalHeight(),
-            itemBuilder: () => ShimmerEventCardSmall(),
+            itemBuilder: () => const ShimmerEventCardSmall(),
           ),
           error: (_, _) => SizedBox(
             height: EventCardSmall.totalHeight(),
@@ -396,11 +398,12 @@ class _UpcomingSection extends ConsumerWidget {
               height: EventCardSmall.totalHeight(),
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
                   horizontal: AppDimensions.paddingMedium,
                 ),
                 itemCount: filtered.length,
-                separatorBuilder: (_, _) => SizedBox(width: 12),
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
                 itemBuilder: (_, i) => EventCardSmall(
                   event: filtered[i],
                   onTap: () => context.push('/events/${filtered[i].id}'),
@@ -415,7 +418,7 @@ class _UpcomingSection extends ConsumerWidget {
 }
 
 class _NearYouSection extends ConsumerWidget {
-  _NearYouSection();
+  const _NearYouSection();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -430,13 +433,13 @@ class _NearYouSection extends ConsumerWidget {
         ),
         nearby.when(
           loading: () => Padding(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: AppDimensions.paddingMedium,
             ),
             child: Column(
               children: List.generate(
                 3,
-                (i) => Padding(
+                (i) => const Padding(
                   padding: EdgeInsets.only(bottom: 10),
                   child: ShimmerEventListRow(),
                 ),
@@ -450,7 +453,7 @@ class _NearYouSection extends ConsumerWidget {
             final top = list.take(4).toList();
             if (top.isEmpty) {
               return Padding(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: AppDimensions.paddingMedium,
                 ),
                 child: AppEmptyState(
@@ -460,14 +463,14 @@ class _NearYouSection extends ConsumerWidget {
               );
             }
             return Padding(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: AppDimensions.paddingMedium,
               ),
               child: Column(
                 children: [
                   for (final item in top)
                     Padding(
-                      padding: EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.only(bottom: 10),
                       child: EventListRow(
                         event: item.event,
                         distanceKm: item.distanceKm,
@@ -485,7 +488,7 @@ class _NearYouSection extends ConsumerWidget {
 }
 
 class _RecommendedSection extends ConsumerWidget {
-  _RecommendedSection();
+  const _RecommendedSection();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -500,9 +503,9 @@ class _RecommendedSection extends ConsumerWidget {
           onViewAll: () => context.push('/events/list'),
         ),
         events.when(
-          loading: () => _grid(6, (_) => ShimmerEventCardGrid()),
+          loading: () => _grid(6, (_) => const ShimmerEventCardGrid()),
           error: (_, _) => Padding(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: AppDimensions.paddingMedium,
             ),
             child: AppErrorWidget(
@@ -513,7 +516,7 @@ class _RecommendedSection extends ConsumerWidget {
             final filtered = _filterByCategory(list, selected);
             if (filtered.isEmpty) {
               return Padding(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: AppDimensions.paddingMedium,
                 ),
                 child: AppEmptyState(
@@ -537,18 +540,15 @@ class _RecommendedSection extends ConsumerWidget {
 
   Widget _grid(int count, Widget Function(int) builder) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
       child: GridView.builder(
         shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         itemCount: count,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
-          // Conservative enough that even a narrow ~320dp screen gives the
-          // card's fixed-height content (image 140 + text block ~82) room
-          // to fit without overflowing.
           childAspectRatio: 0.58,
         ),
         itemBuilder: (context, i) => builder(i),
@@ -560,7 +560,7 @@ class _RecommendedSection extends ConsumerWidget {
 class _SectionHeader extends StatelessWidget {
   final String title;
   final VoidCallback onViewAll;
-  _SectionHeader({required this.title, required this.onViewAll});
+  const _SectionHeader({required this.title, required this.onViewAll});
 
   @override
   Widget build(BuildContext context) {
@@ -582,8 +582,8 @@ class _SectionHeader extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(width: 2),
-                Icon(
+                const SizedBox(width: 2),
+                const Icon(
                   Icons.arrow_forward_rounded,
                   size: 14,
                   color: AppColors.accentEvent,

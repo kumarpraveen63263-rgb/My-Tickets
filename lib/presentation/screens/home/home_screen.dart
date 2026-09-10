@@ -23,47 +23,53 @@ import '../../widgets/home/section_header.dart';
 import '../../widgets/home/theatre_card.dart';
 
 /// Horizontal list padding shared by every poster section.
-final _kListPadding = EdgeInsets.symmetric(
+const _kListPadding = EdgeInsets.symmetric(
   horizontal: AppDimensions.paddingMedium,
 );
 
 class HomeScreen extends ConsumerWidget {
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SafeArea(
-      bottom: false,
-      child: RefreshIndicator(
-        color: AppColors.accentMovie,
-        onRefresh: () async {
-          ref.invalidate(nowShowingMoviesProvider);
-          ref.invalidate(upcomingMoviesProvider);
-          ref.invalidate(featuredTheatresProvider);
-          ref.invalidate(trendingEventsProvider);
-          ref.invalidate(featuredEventsProvider);
-          ref.invalidate(offersProvider);
-          await Future.delayed(Duration(milliseconds: 600));
-        },
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            HomeHeader(),
-            _SearchBarButton(),
-            SizedBox(height: AppDimensions.paddingMedium),
-            _FeaturedSection(),
-            SizedBox(height: AppDimensions.paddingLarge),
-            _QuickActionsRow(),
-            SizedBox(height: AppDimensions.paddingSmall),
-            _NowShowingSection(),
-            _TheatresSection(),
-            _EventsSection(),
-            _MetroSection(),
-            _UpcomingSection(),
-            _TrendingEventsSection(),
-            _OffersSection(),
-            SizedBox(height: AppDimensions.bottomPadding),
-          ],
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        bottom: false,
+        child: RefreshIndicator(
+          color: AppColors.accentMovie,
+          onRefresh: () async {
+            ref.invalidate(nowShowingMoviesProvider);
+            ref.invalidate(upcomingMoviesProvider);
+            ref.invalidate(featuredTheatresProvider);
+            ref.invalidate(trendingEventsProvider);
+            ref.invalidate(featuredEventsProvider);
+            ref.invalidate(offersProvider);
+            await Future.delayed(const Duration(milliseconds: 600));
+          },
+          child: ListView(
+            padding: EdgeInsets.zero,
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            children: const [
+              HomeHeader(),
+              _SearchBarButton(),
+              SizedBox(height: AppDimensions.paddingMedium),
+              _FeaturedSection(),
+              SizedBox(height: AppDimensions.paddingLarge),
+              _QuickActionsRow(),
+              SizedBox(height: AppDimensions.paddingSmall),
+              _NowShowingSection(),
+              _TheatresSection(),
+              _EventsSection(),
+              _MetroSection(),
+              _UpcomingSection(),
+              _TrendingEventsSection(),
+              _OffersSection(),
+              SizedBox(height: AppDimensions.bottomPadding),
+            ],
+          ),
         ),
       ),
     );
@@ -71,15 +77,13 @@ class HomeScreen extends ConsumerWidget {
 }
 
 /// Wraps a horizontal poster list, applying a fast one-shot staggered
-/// fade + slide entrance to the first few cards. Because Home lives inside the
-/// bottom-nav IndexedStack it is not rebuilt on tab switches, so this plays
-/// only once.
+/// fade + slide entrance to the first few cards.
 class _PosterRow extends StatelessWidget {
   final double height;
   final int itemCount;
   final Widget Function(BuildContext, int) itemBuilder;
 
-  _PosterRow({
+  const _PosterRow({
     required this.height,
     required this.itemCount,
     required this.itemBuilder,
@@ -91,12 +95,13 @@ class _PosterRow extends StatelessWidget {
       height: height,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
         padding: _kListPadding,
         itemCount: itemCount,
-        separatorBuilder: (_, _) => SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, i) {
           final card = itemBuilder(context, i);
-          if (i >= 6) return card; // only stagger the initial viewport
+          if (i >= 6) return card;
           return card
               .animate()
               .fadeIn(duration: 260.ms, delay: (i * 45).ms)
@@ -114,35 +119,40 @@ class _PosterRow extends StatelessWidget {
 }
 
 class _SearchBarButton extends StatelessWidget {
-  _SearchBarButton();
+  const _SearchBarButton();
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
-      child: GestureDetector(
-        onTap: () => context.go('/home/search'),
-        child: Container(
-          height: 50,
-          padding: EdgeInsets.symmetric(
-            horizontal: AppDimensions.paddingMedium,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceElevated,
-            borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.search_rounded, color: AppColors.textSecondary),
-              SizedBox(width: 10),
-              Text(
-                context.tr('Movies, Events, Metro...'),
-                style: AppTypography.bodyMedium,
-              ),
-              Spacer(),
-              Icon(Icons.mic_none_rounded, color: AppColors.textSecondary),
-            ],
+      padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
+      child: Semantics(
+        button: true,
+        label: 'Search movies, events, and metro stations',
+        child: InkWell(
+          onTap: () => context.go('/home/search'),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimensions.paddingMedium,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceElevated,
+              borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
+                const SizedBox(width: 10),
+                Text(
+                  context.tr('Movies, Events, Metro...'),
+                  style: AppTypography.bodyMedium,
+                ),
+                const Spacer(),
+                const Icon(Icons.mic_none_rounded, color: AppColors.textSecondary, size: 20),
+              ],
+            ),
           ),
         ),
       ),
@@ -151,7 +161,7 @@ class _SearchBarButton extends StatelessWidget {
 }
 
 class _FeaturedSection extends ConsumerWidget {
-  _FeaturedSection();
+  const _FeaturedSection();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -159,11 +169,11 @@ class _FeaturedSection extends ConsumerWidget {
     final events = ref.watch(featuredEventsProvider);
 
     return movies.when(
-      loading: () => Padding(
+      loading: () => const Padding(
         padding: _kListPadding,
         child: ShimmerBox(width: double.infinity, height: 200),
       ),
-      error: (_, _) => SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
       data: (movieList) {
         final items = <FeaturedBannerItem>[];
         for (final m in movieList.take(5)) {
@@ -197,41 +207,46 @@ class _FeaturedSection extends ConsumerWidget {
 }
 
 class _QuickActionsRow extends StatelessWidget {
-  _QuickActionsRow();
+  const _QuickActionsRow();
 
   @override
   Widget build(BuildContext context) {
     final actions = [
-      (_QuickAction(
+      _QuickAction(
         Icons.movie_rounded,
         'Movies',
         AppColors.accentMovie,
         () => context.go('/movies'),
-      )),
-      (_QuickAction(
+      ),
+      _QuickAction(
         Icons.celebration_rounded,
         'Events',
         AppColors.accentEvent,
         () => context.go('/events'),
-      )),
-      (_QuickAction(
+      ),
+      _QuickAction(
         Icons.train_rounded,
         'Metro',
         AppColors.accentMetro,
         () => context.go('/metro'),
-      )),
-      (_QuickAction(
+      ),
+      _QuickAction(
         Icons.local_offer_rounded,
         'Offers',
         AppColors.accentOffer,
         () => context.go('/home/search'),
-      )),
+      ),
     ];
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: actions,
+      padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: actions,
+          ),
+        ),
       ),
     );
   }
@@ -243,34 +258,40 @@ class _QuickAction extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
 
-  _QuickAction(this.icon, this.label, this.color, this.onTap);
+  const _QuickAction(this.icon, this.label, this.color, this.onTap);
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-        child: Column(
-          children: [
-            Container(
-              width: 58,
-              height: 58,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.14),
-                shape: BoxShape.circle,
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          child: Column(
+            children: [
+              Container(
+                width: 58,
+                height: 58,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: color.withValues(alpha: 0.2)),
+                ),
+                child: Icon(icon, color: color, size: 26),
               ),
-              child: Icon(icon, color: color, size: 26),
-            ),
-            SizedBox(height: 6),
-            Text(
-              label,
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textPrimary,
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -278,6 +299,8 @@ class _QuickAction extends StatelessWidget {
 }
 
 class _NowShowingSection extends ConsumerWidget {
+  const _NowShowingSection();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final movies = ref.watch(nowShowingMoviesProvider);
@@ -291,7 +314,7 @@ class _NowShowingSection extends ConsumerWidget {
         movies.when(
           loading: () => ShimmerList(
             height: MovieCard.totalHeight(140),
-            itemBuilder: () => ShimmerMovieCard(),
+            itemBuilder: () => const ShimmerMovieCard(),
           ),
           error: (_, _) => SizedBox(
             height: MovieCard.totalHeight(140),
@@ -311,6 +334,8 @@ class _NowShowingSection extends ConsumerWidget {
 }
 
 class _TheatresSection extends ConsumerWidget {
+  const _TheatresSection();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theatres = ref.watch(featuredTheatresProvider);
@@ -324,11 +349,11 @@ class _TheatresSection extends ConsumerWidget {
         theatres.when(
           loading: () => ShimmerList(
             height: TheatreCard.totalHeight(),
-            itemBuilder: () => _ShimmerBoxCard(width: 240, height: 120),
+            itemBuilder: () => const _ShimmerBoxCard(width: 240, height: 120),
           ),
-          error: (_, _) => SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
           data: (list) {
-            if (list.isEmpty) return SizedBox.shrink();
+            if (list.isEmpty) return const SizedBox.shrink();
             return _PosterRow(
               height: TheatreCard.totalHeight(),
               itemCount: list.length,
@@ -345,6 +370,8 @@ class _TheatresSection extends ConsumerWidget {
 }
 
 class _EventsSection extends ConsumerWidget {
+  const _EventsSection();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final events = ref.watch(eventsProvider);
@@ -359,9 +386,9 @@ class _EventsSection extends ConsumerWidget {
         events.when(
           loading: () => ShimmerList(
             height: EventCard.totalHeight(),
-            itemBuilder: () => ShimmerEventCard(),
+            itemBuilder: () => const ShimmerEventCard(),
           ),
-          error: (_, _) => SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
           data: (list) => _PosterRow(
             height: EventCard.totalHeight(),
             itemCount: list.length,
@@ -374,6 +401,8 @@ class _EventsSection extends ConsumerWidget {
 }
 
 class _MetroSection extends ConsumerWidget {
+  const _MetroSection();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final routes = ref.watch(popularMetroRoutesProvider);
@@ -439,6 +468,8 @@ class _MetroSection extends ConsumerWidget {
 }
 
 class _UpcomingSection extends ConsumerWidget {
+  const _UpcomingSection();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final movies = ref.watch(upcomingMoviesProvider);
@@ -452,9 +483,9 @@ class _UpcomingSection extends ConsumerWidget {
         movies.when(
           loading: () => ShimmerList(
             height: MovieCard.totalHeight(140),
-            itemBuilder: () => ShimmerMovieCard(),
+            itemBuilder: () => const ShimmerMovieCard(),
           ),
-          error: (_, _) => SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
           data: (list) => _PosterRow(
             height: MovieCard.totalHeight(140),
             itemCount: list.length,
@@ -467,6 +498,8 @@ class _UpcomingSection extends ConsumerWidget {
 }
 
 class _TrendingEventsSection extends ConsumerWidget {
+  const _TrendingEventsSection();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final events = ref.watch(trendingEventsProvider);
@@ -481,9 +514,9 @@ class _TrendingEventsSection extends ConsumerWidget {
         events.when(
           loading: () => ShimmerList(
             height: EventCard.totalHeight(),
-            itemBuilder: () => ShimmerEventCard(),
+            itemBuilder: () => const ShimmerEventCard(),
           ),
-          error: (_, _) => SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
           data: (list) => _PosterRow(
             height: EventCard.totalHeight(),
             itemCount: list.length,
@@ -496,6 +529,8 @@ class _TrendingEventsSection extends ConsumerWidget {
 }
 
 class _OffersSection extends ConsumerWidget {
+  const _OffersSection();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final offers = ref.watch(offersProvider);
@@ -509,9 +544,9 @@ class _OffersSection extends ConsumerWidget {
         offers.when(
           loading: () => ShimmerList(
             height: 150,
-            itemBuilder: () => _ShimmerBoxCard(width: 260, height: 130),
+            itemBuilder: () => const _ShimmerBoxCard(width: 260, height: 130),
           ),
-          error: (_, _) => SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
           data: (list) => _PosterRow(
             height: 150,
             itemCount: list.length,
@@ -527,7 +562,7 @@ class _OffersSection extends ConsumerWidget {
 class _ShimmerBoxCard extends StatelessWidget {
   final double width;
   final double height;
-  _ShimmerBoxCard({required this.width, required this.height});
+  const _ShimmerBoxCard({required this.width, required this.height});
 
   @override
   Widget build(BuildContext context) =>

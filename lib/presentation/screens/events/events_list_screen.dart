@@ -21,7 +21,7 @@ class EventsListScreen extends ConsumerWidget {
   /// back button is hidden. When pushed from elsewhere it shows normally.
   final bool isTab;
 
-  EventsListScreen({super.key, this.isTab = false});
+  const EventsListScreen({super.key, this.isTab = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,13 +36,13 @@ class EventsListScreen extends ConsumerWidget {
             ? null
             : IconButton(
                 onPressed: () => context.pop(),
-                icon: Icon(Icons.arrow_back_rounded),
+                icon: const Icon(Icons.arrow_back_rounded),
               ),
         title: Text(context.tr('Events')),
       ),
       body: eventsAsync.when(
         loading: () => ListView(
-          children: [
+          children: const [
             ShimmerTicketCard(),
             ShimmerTicketCard(),
             ShimmerTicketCard(),
@@ -64,11 +64,12 @@ class EventsListScreen extends ConsumerWidget {
                 height: 44,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
                     horizontal: AppDimensions.paddingMedium,
                   ),
                   itemCount: categories.length,
-                  separatorBuilder: (_, _) => SizedBox(width: 8),
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (_, i) => AppChip(
                     label: categories[i],
                     accentColor: AppColors.accentEvent,
@@ -84,15 +85,19 @@ class EventsListScreen extends ConsumerWidget {
                     ? AppEmptyState(
                         icon: Icons.event_busy_rounded,
                         title: context.tr('No events found'),
+                        subtitle: 'Try changing the category filter',
                       )
                     : RefreshIndicator(
                         color: AppColors.accentEvent,
                         onRefresh: () async {
                           ref.invalidate(eventsProvider);
-                          await Future.delayed(Duration(milliseconds: 500));
+                          await Future.delayed(const Duration(milliseconds: 500));
                         },
                         child: ListView.separated(
-                          padding: EdgeInsets.fromLTRB(
+                          physics: const BouncingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics(),
+                          ),
+                          padding: const EdgeInsets.fromLTRB(
                             AppDimensions.paddingMedium,
                             AppDimensions.paddingSmall,
                             AppDimensions.paddingMedium,
@@ -100,7 +105,7 @@ class EventsListScreen extends ConsumerWidget {
                           ),
                           itemCount: filtered.length,
                           separatorBuilder: (_, _) =>
-                              SizedBox(height: AppDimensions.paddingMedium),
+                              const SizedBox(height: AppDimensions.paddingMedium),
                           itemBuilder: (_, i) =>
                               _EventListTile(event: filtered[i]),
                         ),
@@ -117,7 +122,7 @@ class EventsListScreen extends ConsumerWidget {
 class _EventListTile extends StatelessWidget {
   final EventModel event;
 
-  _EventListTile({required this.event});
+  const _EventListTile({required this.event});
 
   @override
   Widget build(BuildContext context) {

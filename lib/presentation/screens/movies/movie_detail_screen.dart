@@ -22,7 +22,7 @@ import '../../widgets/movie/review_card.dart';
 class MovieDetailScreen extends ConsumerWidget {
   final String movieId;
 
-  MovieDetailScreen({super.key, required this.movieId});
+  const MovieDetailScreen({super.key, required this.movieId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,7 +31,7 @@ class MovieDetailScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: movieAsync.when(
-        loading: () => AppLoader(),
+        loading: () => const AppLoader(),
         error: (_, _) => AppErrorWidget(
           onRetry: () => ref.invalidate(movieDetailProvider(movieId)),
         ),
@@ -41,7 +41,7 @@ class MovieDetailScreen extends ConsumerWidget {
         data: (movie) => movie.isNowShowing
             ? SafeArea(
                 child: Padding(
-                  padding: EdgeInsets.all(AppDimensions.paddingMedium),
+                  padding: const EdgeInsets.all(AppDimensions.paddingMedium),
                   child: AppButton(
                     label: context.tr('Book Tickets'),
                     icon: Icons.confirmation_number_rounded,
@@ -53,7 +53,7 @@ class MovieDetailScreen extends ConsumerWidget {
               )
             : SafeArea(
                 child: Padding(
-                  padding: EdgeInsets.all(AppDimensions.paddingMedium),
+                  padding: const EdgeInsets.all(AppDimensions.paddingMedium),
                   child: AppButton(
                     label:
                         'Coming ${AppDateUtils.formatDayMonth(movie.releaseDate)}',
@@ -63,7 +63,7 @@ class MovieDetailScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-        orElse: () => SizedBox.shrink(),
+        orElse: () => const SizedBox.shrink(),
       ),
     );
   }
@@ -73,20 +73,21 @@ class MovieDetailScreen extends ConsumerWidget {
       children: [
         ListView(
           padding: EdgeInsets.zero,
+          physics: const BouncingScrollPhysics(),
           children: [
             MovieHeroBanner(
               bannerUrl: movie.bannerUrl,
               posterUrl: movie.posterUrl,
             ),
             Padding(
-              padding: EdgeInsets.all(AppDimensions.paddingMedium),
+              padding: const EdgeInsets.all(AppDimensions.paddingMedium),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(movie.title, style: AppTypography.displaySmall),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   RatingBar(rating: movie.rating, votes: movie.votes),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -96,7 +97,7 @@ class MovieDetailScreen extends ConsumerWidget {
                       _infoChip(movie.certification),
                     ],
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
                     children: movie.genre.map((g) => _genreTag(g)).toList(),
@@ -105,12 +106,12 @@ class MovieDetailScreen extends ConsumerWidget {
               ),
             ),
             _ExpandableSynopsis(synopsis: movie.synopsis),
-            SizedBox(height: AppDimensions.paddingSmall),
+            const SizedBox(height: AppDimensions.paddingSmall),
             _trailerCard(context, movie),
-            SizedBox(height: AppDimensions.paddingMedium),
+            const SizedBox(height: AppDimensions.paddingMedium),
             SectionHeader(title: context.tr('Cast')),
             CastCrewRow(cast: movie.cast),
-            SizedBox(height: AppDimensions.paddingMedium),
+            const SizedBox(height: AppDimensions.paddingMedium),
             if (movie.isNowShowing)
               SectionHeader(
                 title: context.tr('Available Theatres'),
@@ -118,7 +119,7 @@ class MovieDetailScreen extends ConsumerWidget {
               ),
             if (movie.isNowShowing)
               Padding(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: AppDimensions.paddingMedium,
                 ),
                 child: AppButton(
@@ -128,23 +129,25 @@ class MovieDetailScreen extends ConsumerWidget {
                   onPressed: () => context.push('/movies/${movie.id}/theatres'),
                 ),
               ),
-            SizedBox(height: AppDimensions.paddingLarge),
+            const SizedBox(height: AppDimensions.paddingLarge),
             PriceComparisonCard(comparison: movie.priceComparison),
-            SizedBox(height: AppDimensions.paddingLarge),
+            const SizedBox(height: AppDimensions.paddingLarge),
             SectionHeader(title: context.tr('User Reviews')),
             ...movie.reviews.take(3).map((r) => ReviewCard(review: r)),
-            SizedBox(height: AppDimensions.paddingMedium),
+            const SizedBox(height: AppDimensions.paddingMedium),
             _RelatedMovies(currentId: movie.id),
-            SizedBox(height: AppDimensions.bottomPadding),
+            const SizedBox(height: AppDimensions.bottomPadding),
           ],
         ),
         Positioned(
           top: MediaQuery.of(context).padding.top + 8,
-          left: 8,
-          child: CircleAvatar(
-            backgroundColor: Colors.black.withValues(alpha: 0.5),
+          left: 12,
+          child: Material(
+            color: Colors.white.withValues(alpha: 0.9),
+            shape: const CircleBorder(),
+            elevation: 3,
             child: IconButton(
-              icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
+              icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
               onPressed: () => context.pop(),
             ),
           ),
@@ -155,36 +158,44 @@ class MovieDetailScreen extends ConsumerWidget {
 
   Widget _infoChip(String label) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: AppColors.surfaceElevated,
         borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+        border: Border.all(color: AppColors.border),
       ),
       child: Text(
         label,
-        style: AppTypography.caption.copyWith(color: AppColors.textPrimary),
+        style: AppTypography.caption.copyWith(
+          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
 
   Widget _genreTag(String genre) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.accentMovie.withValues(alpha: 0.5)),
+        color: AppColors.accentMovie.withValues(alpha: 0.08),
+        border: Border.all(color: AppColors.accentMovie.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(AppDimensions.radiusXL),
       ),
       child: Text(
         genre,
-        style: AppTypography.caption.copyWith(color: AppColors.accentMovie),
+        style: AppTypography.caption.copyWith(
+          color: AppColors.accentMovie,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
 
   Widget _trailerCard(BuildContext context, MovieModel movie) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
-      child: GestureDetector(
+      padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
+      child: InkWell(
         onTap: () => ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(
@@ -194,9 +205,10 @@ class MovieDetailScreen extends ConsumerWidget {
               ),
             ),
           ),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
         child: Container(
           height: 60,
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: AppDimensions.paddingMedium,
           ),
           decoration: BoxDecoration(
@@ -209,13 +221,13 @@ class MovieDetailScreen extends ConsumerWidget {
               Container(
                 width: 36,
                 height: 36,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.accentMovie,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.play_arrow_rounded, color: Colors.white),
+                child: const Icon(Icons.play_arrow_rounded, color: Colors.white),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Text('Watch Trailer', style: AppTypography.titleMedium),
             ],
           ),
@@ -228,7 +240,7 @@ class MovieDetailScreen extends ConsumerWidget {
 class _ExpandableSynopsis extends StatefulWidget {
   final String synopsis;
 
-  _ExpandableSynopsis({required this.synopsis});
+  const _ExpandableSynopsis({required this.synopsis});
 
   @override
   State<_ExpandableSynopsis> createState() => _ExpandableSynopsisState();
@@ -240,12 +252,12 @@ class _ExpandableSynopsisState extends State<_ExpandableSynopsis> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(context.tr('Synopsis'), style: AppTypography.titleLarge),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
             widget.synopsis,
             maxLines: _expanded ? null : 3,
@@ -255,7 +267,7 @@ class _ExpandableSynopsisState extends State<_ExpandableSynopsis> {
           GestureDetector(
             onTap: () => setState(() => _expanded = !_expanded),
             child: Padding(
-              padding: EdgeInsets.only(top: 4),
+              padding: const EdgeInsets.only(top: 4),
               child: Text(
                 _expanded ? context.tr('Read Less') : context.tr('Read More'),
                 style: AppTypography.bodySmall.copyWith(
@@ -274,7 +286,7 @@ class _ExpandableSynopsisState extends State<_ExpandableSynopsis> {
 class _RelatedMovies extends ConsumerWidget {
   final String currentId;
 
-  _RelatedMovies({required this.currentId});
+  const _RelatedMovies({required this.currentId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -282,7 +294,7 @@ class _RelatedMovies extends ConsumerWidget {
     return moviesAsync.maybeWhen(
       data: (movies) {
         final related = movies.where((m) => m.id != currentId).take(6).toList();
-        if (related.isEmpty) return SizedBox.shrink();
+        if (related.isEmpty) return const SizedBox.shrink();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -291,18 +303,19 @@ class _RelatedMovies extends ConsumerWidget {
               height: MovieCard.totalHeight(140),
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
                   horizontal: AppDimensions.paddingMedium,
                 ),
                 itemCount: related.length,
-                separatorBuilder: (_, _) => SizedBox(width: 12),
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
                 itemBuilder: (_, i) => MovieCard(movie: related[i]),
               ),
             ),
           ],
         );
       },
-      orElse: () => SizedBox.shrink(),
+      orElse: () => const SizedBox.shrink(),
     );
   }
 }

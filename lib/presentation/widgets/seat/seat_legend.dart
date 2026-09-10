@@ -4,7 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 
 class SeatLegend extends StatelessWidget {
-  SeatLegend({super.key});
+  const SeatLegend({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class SeatLegend extends StatelessWidget {
           label: context.tr('Selected'),
         ),
         _LegendItem(color: AppColors.seatBooked, label: context.tr('Booked')),
-        _LegendItem(
+        const _LegendItem(
           color: AppColors.seatPremium,
           label: 'Premium',
           isBorder: true,
@@ -37,7 +37,7 @@ class _LegendItem extends StatelessWidget {
   final String label;
   final bool isBorder;
 
-  _LegendItem({
+  const _LegendItem({
     required this.color,
     required this.label,
     this.isBorder = false,
@@ -54,10 +54,10 @@ class _LegendItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: isBorder ? AppColors.surfaceElevated : color,
             borderRadius: BorderRadius.circular(4),
-            border: isBorder ? Border.all(color: color, width: 1.5) : null,
+            border: isBorder ? Border.all(color: color, width: 1.5) : Border.all(color: AppColors.border),
           ),
         ),
-        SizedBox(width: 6),
+        const SizedBox(width: 6),
         Text(label, style: AppTypography.caption),
       ],
     );

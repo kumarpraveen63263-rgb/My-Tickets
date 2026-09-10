@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_typography.dart';
@@ -44,6 +45,12 @@ class AppButton extends StatelessWidget {
 
   bool get _disabled => onPressed == null || isLoading;
 
+  void _handlePress() {
+    if (_disabled) return;
+    HapticFeedback.selectionClick();
+    onPressed?.call();
+  }
+
   @override
   Widget build(BuildContext context) {
     final child = isLoading
@@ -78,11 +85,12 @@ class AppButton extends StatelessWidget {
     switch (variant) {
       case AppButtonVariant.primary:
         button = ElevatedButton(
-          onPressed: _disabled ? null : onPressed,
+          onPressed: _disabled ? null : _handlePress,
           style: ElevatedButton.styleFrom(
             backgroundColor: _accent,
-            disabledBackgroundColor: _accent.withValues(alpha: 0.4),
+            disabledBackgroundColor: _accent.withValues(alpha: 0.35),
             foregroundColor: Colors.white,
+            disabledForegroundColor: Colors.white.withValues(alpha: 0.7),
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
@@ -93,13 +101,14 @@ class AppButton extends StatelessWidget {
         break;
       case AppButtonVariant.secondary:
         button = ElevatedButton(
-          onPressed: _disabled ? null : onPressed,
+          onPressed: _disabled ? null : _handlePress,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.surfaceElevated,
             foregroundColor: AppColors.textPrimary,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+              side: const BorderSide(color: AppColors.border),
             ),
           ),
           child: child,
@@ -107,7 +116,7 @@ class AppButton extends StatelessWidget {
         break;
       case AppButtonVariant.outlined:
         button = OutlinedButton(
-          onPressed: _disabled ? null : onPressed,
+          onPressed: _disabled ? null : _handlePress,
           style: OutlinedButton.styleFrom(
             side: BorderSide(color: _disabled ? AppColors.border : _accent),
             shape: RoundedRectangleBorder(
@@ -119,7 +128,7 @@ class AppButton extends StatelessWidget {
         break;
       case AppButtonVariant.ghost:
         button = TextButton(
-          onPressed: _disabled ? null : onPressed,
+          onPressed: _disabled ? null : _handlePress,
           style: TextButton.styleFrom(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
@@ -130,12 +139,12 @@ class AppButton extends StatelessWidget {
         break;
       case AppButtonVariant.danger:
         button = ElevatedButton(
-          onPressed: _disabled ? null : onPressed,
+          onPressed: _disabled ? null : _handlePress,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
+            backgroundColor: AppColors.error.withValues(alpha: 0.08),
             foregroundColor: AppColors.error,
             elevation: 0,
-            side: const BorderSide(color: AppColors.error),
+            side: BorderSide(color: AppColors.error.withValues(alpha: 0.4)),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
             ),
@@ -145,20 +154,25 @@ class AppButton extends StatelessWidget {
         break;
     }
 
-    return SizedBox(
-      width: fullWidth ? double.infinity : null,
-      height: _height,
-      child: button,
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: 44,
+        minWidth: fullWidth ? double.infinity : 64,
+      ),
+      child: SizedBox(
+        width: fullWidth ? double.infinity : null,
+        height: _height,
+        child: button,
+      ),
     );
   }
 
   Color get _foregroundColor {
     switch (variant) {
       case AppButtonVariant.primary:
+        return Colors.white;
       case AppButtonVariant.secondary:
-        return variant == AppButtonVariant.primary
-            ? Colors.white
-            : AppColors.textPrimary;
+        return AppColors.textPrimary;
       case AppButtonVariant.outlined:
       case AppButtonVariant.ghost:
         return _accent;

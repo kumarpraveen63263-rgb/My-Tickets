@@ -23,7 +23,7 @@ class SeatSelectionScreen extends ConsumerWidget {
   final String showId;
   final String theatreName;
 
-  SeatSelectionScreen({
+  const SeatSelectionScreen({
     super.key,
     required this.movieId,
     required this.showId,
@@ -42,7 +42,7 @@ class SeatSelectionScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: Icon(Icons.arrow_back_rounded),
+          icon: const Icon(Icons.arrow_back_rounded),
         ),
         title: movieAsync.maybeWhen(
           data: (m) => Text(
@@ -53,13 +53,13 @@ class SeatSelectionScreen extends ConsumerWidget {
         ),
       ),
       body: movieAsync.when(
-        loading: () => AppLoader(),
-        error: (_, _) => Center(child: Text('Failed to load')),
+        loading: () => const AppLoader(),
+        error: (_, _) => const Center(child: Text('Failed to load')),
         data: (movie) => showAsync.when(
-          loading: () => AppLoader(),
-          error: (_, _) => Center(child: Text('Failed to load show')),
+          loading: () => const AppLoader(),
+          error: (_, _) => const Center(child: Text('Failed to load show')),
           data: (show) {
-            if (show == null) return Center(child: Text('Show not found'));
+            if (show == null) return const Center(child: Text('Show not found'));
             return _SeatBody(
               movie: movie,
               show: show,
@@ -77,7 +77,7 @@ class _SeatBody extends ConsumerWidget {
   final ShowModel show;
   final String theatreName;
 
-  _SeatBody({
+  const _SeatBody({
     required this.movie,
     required this.show,
     required this.theatreName,
@@ -102,7 +102,7 @@ class _SeatBody extends ConsumerWidget {
       children: [
         SeatTimerWidget(remaining: state.remaining),
         Padding(
-          padding: EdgeInsets.symmetric(vertical: AppDimensions.paddingMedium),
+          padding: const EdgeInsets.symmetric(vertical: AppDimensions.paddingMedium),
           child: Column(
             children: [
               Container(
@@ -119,10 +119,14 @@ class _SeatBody extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(
-                'SCREEN',
-                style: AppTypography.caption.copyWith(letterSpacing: 4),
+                'SCREEN THIS WAY',
+                style: AppTypography.caption.copyWith(
+                  letterSpacing: 3,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
@@ -131,18 +135,20 @@ class _SeatBody extends ConsumerWidget {
           child: state.expired
               ? _expiredState(ref, args)
               : SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
                   child: SeatMapWidget(
                     seats: state.seats,
                     onSeatTap: (id) {
                       final error = notifier.toggleSeat(id);
-                      if (error != null)
+                      if (error != null) {
                         context.showSnack(error, isError: true);
+                      }
                     },
                   ),
                 ),
         ),
-        SeatLegend(),
-        SizedBox(height: AppDimensions.paddingSmall),
+        const SeatLegend(),
+        const SizedBox(height: AppDimensions.paddingSmall),
         _bottomPanel(context, ref, selected, subtotal, total, state.expired),
       ],
     );
@@ -156,10 +162,10 @@ class _SeatBody extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.timer_off_rounded, color: AppColors.error, size: 48),
-          SizedBox(height: 12),
+          const Icon(Icons.timer_off_rounded, color: AppColors.error, size: 48),
+          const SizedBox(height: 12),
           Text('Your seat hold has expired', style: AppTypography.titleLarge),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           AppButton(
             label: 'Start Over',
             fullWidth: false,
@@ -179,13 +185,8 @@ class _SeatBody extends ConsumerWidget {
     bool expired,
   ) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
-        AppDimensions.paddingMedium,
-        AppDimensions.paddingMedium,
-        AppDimensions.paddingMedium,
-        AppDimensions.paddingMedium,
-      ),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.all(AppDimensions.paddingMedium),
+      decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(top: BorderSide(color: AppColors.border)),
       ),
@@ -209,11 +210,12 @@ class _SeatBody extends ConsumerWidget {
                     CurrencyUtils.format(total),
                     style: AppTypography.titleLarge.copyWith(
                       color: AppColors.accentMovie,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: AppDimensions.paddingSmall),
+              const SizedBox(height: AppDimensions.paddingSmall),
             ],
             AppButton(
               label: selected.isEmpty

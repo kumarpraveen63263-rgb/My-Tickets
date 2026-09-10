@@ -17,7 +17,7 @@ import '../../widgets/common/app_error_widget.dart';
 import '../../widgets/common/shimmer_loader.dart';
 
 class MyTicketsScreen extends ConsumerStatefulWidget {
-  MyTicketsScreen({super.key});
+  const MyTicketsScreen({super.key});
 
   @override
   ConsumerState<MyTicketsScreen> createState() => _MyTicketsScreenState();
@@ -52,73 +52,79 @@ class _MyTicketsScreenState extends ConsumerState<MyTicketsScreen>
   Widget build(BuildContext context) {
     final ticketsAsync = ref.watch(ticketsForTabProvider);
 
-    return SafeArea(
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              AppDimensions.paddingMedium,
-              AppDimensions.paddingMedium,
-              AppDimensions.paddingMedium,
-              0,
-            ),
-            child: Text(
-              context.tr('My Tickets'),
-              style: AppTypography.displaySmall,
-            ),
-          ),
-          TabBar(
-            controller: _tabController,
-            isScrollable: true,
-            labelColor: AppColors.accentMovie,
-            unselectedLabelColor: AppColors.textSecondary,
-            indicatorColor: AppColors.accentMovie,
-            tabs: ticketTabs.map((t) => Tab(text: t.label)).toList(),
-          ),
-          Expanded(
-            child: ticketsAsync.when(
-              loading: () => ListView(
-                children: [
-                  ShimmerTicketCard(),
-                  ShimmerTicketCard(),
-                  ShimmerTicketCard(),
-                ],
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppDimensions.paddingMedium,
+                AppDimensions.paddingMedium,
+                AppDimensions.paddingMedium,
+                0,
               ),
-              error: (_, _) => AppErrorWidget(
-                onRetry: () => ref.invalidate(allBookingsProvider),
+              child: Text(
+                context.tr('My Tickets'),
+                style: AppTypography.displaySmall,
               ),
-              data: (tickets) {
-                if (tickets.isEmpty) {
-                  return AppEmptyState(
-                    icon: Icons.confirmation_number_outlined,
-                    title:
-                        'No ${ticketTabs[ref.watch(ticketTabIndexProvider)].label.toLowerCase()} tickets',
-                    subtitle: 'Your bookings will show up here',
-                  );
-                }
-                return RefreshIndicator(
-                  color: AppColors.accentMovie,
-                  onRefresh: () async {
-                    ref.invalidate(allBookingsProvider);
-                    await Future.delayed(Duration(milliseconds: 500));
-                  },
-                  child: ListView.separated(
-                    padding: EdgeInsets.fromLTRB(
-                      AppDimensions.paddingMedium,
-                      AppDimensions.paddingMedium,
-                      AppDimensions.paddingMedium,
-                      AppDimensions.bottomPadding,
+            ),
+            TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              labelColor: AppColors.accentMovie,
+              unselectedLabelColor: AppColors.textSecondary,
+              indicatorColor: AppColors.accentMovie,
+              tabs: ticketTabs.map((t) => Tab(text: t.label)).toList(),
+            ),
+            Expanded(
+              child: ticketsAsync.when(
+                loading: () => ListView(
+                  children: const [
+                    ShimmerTicketCard(),
+                    ShimmerTicketCard(),
+                    ShimmerTicketCard(),
+                  ],
+                ),
+                error: (_, _) => AppErrorWidget(
+                  onRetry: () => ref.invalidate(allBookingsProvider),
+                ),
+                data: (tickets) {
+                  if (tickets.isEmpty) {
+                    return AppEmptyState(
+                      icon: Icons.confirmation_number_outlined,
+                      title:
+                          'No ${ticketTabs[ref.watch(ticketTabIndexProvider)].label.toLowerCase()} tickets',
+                      subtitle: 'Your bookings will show up here',
+                    );
+                  }
+                  return RefreshIndicator(
+                    color: AppColors.accentMovie,
+                    onRefresh: () async {
+                      ref.invalidate(allBookingsProvider);
+                      await Future.delayed(const Duration(milliseconds: 500));
+                    },
+                    child: ListView.separated(
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
+                      padding: const EdgeInsets.fromLTRB(
+                        AppDimensions.paddingMedium,
+                        AppDimensions.paddingMedium,
+                        AppDimensions.paddingMedium,
+                        AppDimensions.bottomPadding,
+                      ),
+                      itemCount: tickets.length,
+                      separatorBuilder: (_, _) =>
+                          const SizedBox(height: AppDimensions.paddingMedium),
+                      itemBuilder: (_, i) => _TicketTile(booking: tickets[i]),
                     ),
-                    itemCount: tickets.length,
-                    separatorBuilder: (_, _) =>
-                        SizedBox(height: AppDimensions.paddingMedium),
-                    itemBuilder: (_, i) => _TicketTile(booking: tickets[i]),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -127,7 +133,7 @@ class _MyTicketsScreenState extends ConsumerState<MyTicketsScreen>
 class _TicketTile extends StatelessWidget {
   final BookingModel booking;
 
-  _TicketTile({required this.booking});
+  const _TicketTile({required this.booking});
 
   Color get _accent {
     switch (booking.type) {
@@ -159,11 +165,18 @@ class _TicketTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
       onTap: () => context.push('/ticket/${booking.id}'),
       child: Container(
-        padding: EdgeInsets.all(AppDimensions.paddingMedium),
+        padding: const EdgeInsets.all(AppDimensions.paddingMedium),
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
           border: Border.all(color: AppColors.border),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,9 +188,16 @@ class _TicketTile extends StatelessWidget {
                 width: 56,
                 height: 72,
                 fit: BoxFit.cover,
+                placeholder: (_, _) => const ShimmerBox(width: 56, height: 72),
+                errorWidget: (_, _, _) => Container(
+                  width: 56,
+                  height: 72,
+                  color: AppColors.surfaceElevated,
+                  child: Icon(Icons.confirmation_number_outlined, color: _accent),
+                ),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,22 +208,25 @@ class _TicketTile extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     '${AppDateUtils.formatDayMonth(booking.date)} · ${booking.time}',
                     style: AppTypography.caption,
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     booking.venue,
                     style: AppTypography.caption,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   Text(
                     '#${booking.bookingId}',
-                    style: AppTypography.caption.copyWith(color: _accent),
+                    style: AppTypography.caption.copyWith(
+                      color: _accent,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ),
@@ -212,12 +235,12 @@ class _TicketTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 AppBadge(label: booking.status.label, color: _statusColor),
-                SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Text(
-                  'View',
+                  'View Ticket',
                   style: AppTypography.caption.copyWith(
                     color: _accent,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],

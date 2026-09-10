@@ -17,7 +17,7 @@ import '../../widgets/common/app_loader.dart';
 class TheatreListScreen extends ConsumerWidget {
   final String movieId;
 
-  TheatreListScreen({super.key, required this.movieId});
+  const TheatreListScreen({super.key, required this.movieId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,7 +29,7 @@ class TheatreListScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: Icon(Icons.arrow_back_rounded),
+          icon: const Icon(Icons.arrow_back_rounded),
         ),
         title: movieAsync.maybeWhen(
           data: (m) => Text(m.title),
@@ -37,14 +37,14 @@ class TheatreListScreen extends ConsumerWidget {
         ),
       ),
       body: movieAsync.when(
-        loading: () => AppLoader(),
+        loading: () => const AppLoader(),
         error: (_, _) => AppErrorWidget(
           onRetry: () => ref.invalidate(movieDetailProvider(movieId)),
         ),
         data: (movie) => Column(
           children: [
             _dateSelector(ref, selectedDate),
-            Divider(height: 1),
+            const Divider(height: 1),
             Expanded(child: _theatreList(context, movie, selectedDate)),
           ],
         ),
@@ -58,26 +58,37 @@ class TheatreListScreen extends ConsumerWidget {
       height: 80,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.all(AppDimensions.paddingMedium),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(AppDimensions.paddingMedium),
         itemCount: dates.length,
-        separatorBuilder: (_, _) => SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, i) {
           final date = dates[i];
           final isSelected =
               date.day == selectedDate.day && date.month == selectedDate.month;
-          return GestureDetector(
+          return InkWell(
             onTap: () =>
                 ref.read(selectedShowDateProvider.notifier).state = date,
+            borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
             child: Container(
               width: 56,
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.accentMovie
-                    : AppColors.surfaceElevated,
+                    : AppColors.surface,
                 borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
                 border: Border.all(
                   color: isSelected ? AppColors.accentMovie : AppColors.border,
                 ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: AppColors.accentMovie.withValues(alpha: 0.25),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ]
+                    : null,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -88,13 +99,15 @@ class TheatreListScreen extends ConsumerWidget {
                       color: isSelected
                           ? Colors.white
                           : AppColors.textSecondary,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     AppDateUtils.formatDayNumber(date),
                     style: AppTypography.titleLarge.copyWith(
                       color: isSelected ? Colors.white : AppColors.textPrimary,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
@@ -125,7 +138,8 @@ class TheatreListScreen extends ConsumerWidget {
     }
 
     return ListView.builder(
-      padding: EdgeInsets.fromLTRB(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(
         AppDimensions.paddingMedium,
         AppDimensions.paddingSmall,
         AppDimensions.paddingMedium,
@@ -149,7 +163,7 @@ class _TheatreCard extends StatelessWidget {
   final TheatreModel theatre;
   final List<ShowModel> shows;
 
-  _TheatreCard({
+  const _TheatreCard({
     required this.movie,
     required this.theatre,
     required this.shows,
@@ -169,20 +183,20 @@ class _TheatreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: AppDimensions.paddingMedium),
-      padding: EdgeInsets.all(AppDimensions.paddingMedium),
+      margin: const EdgeInsets.only(bottom: AppDimensions.paddingMedium),
+      padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(theatre.name, style: AppTypography.titleLarge),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(theatre.location, style: AppTypography.caption),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Wrap(
             spacing: 12,
             children: theatre.amenities
@@ -191,43 +205,57 @@ class _TheatreCard extends StatelessWidget {
                   (a) => Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.check_circle_outline_rounded,
                         size: 12,
                         color: AppColors.textSecondary,
                       ),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Text(a, style: AppTypography.caption),
                     ],
                   ),
                 )
                 .toList(),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 10,
             runSpacing: 10,
             children: shows.map((show) {
               final color = _availabilityColor(show.availability);
-              return GestureDetector(
+              return InkWell(
                 onTap: () => context.push(
                   '/movies/${movie.id}/seats',
                   extra: {'showId': show.id, 'theatreName': theatre.name},
                 ),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(
                       AppDimensions.radiusSmall,
                     ),
-                    border: Border.all(color: color),
+                    border: Border.all(color: color.withValues(alpha: 0.5)),
                   ),
-                  child: Text(
-                    show.time,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  child: Column(
+                    children: [
+                      Text(
+                        show.time,
+                        style: AppTypography.bodySmall.copyWith(
+                          color: color,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        show.screen,
+                        style: AppTypography.caption.copyWith(
+                          fontSize: 10,
+                          color: color,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );

@@ -9,46 +9,53 @@ import '../../../data/models/price_comparison_model.dart';
 class PriceComparisonCard extends StatelessWidget {
   final PriceComparisonModel? comparison;
 
-  PriceComparisonCard({super.key, required this.comparison});
+  const PriceComparisonCard({super.key, required this.comparison});
 
   @override
   Widget build(BuildContext context) {
     final data = comparison;
-    if (data == null) return SizedBox.shrink();
+    if (data == null) return const SizedBox.shrink();
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
-      padding: EdgeInsets.all(AppDimensions.paddingMedium),
+      margin: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingMedium),
+      padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
-        border: Border.all(color: AppColors.accentOffer.withValues(alpha: 0.4)),
+        border: Border.all(color: AppColors.accentOffer.withValues(alpha: 0.35)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.accentOffer.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.verified_rounded,
                 color: AppColors.accentOffer,
                 size: 18,
               ),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
                 context.tr('Best Price Guaranteed'),
                 style: AppTypography.titleLarge,
               ),
             ],
           ),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           _row('MyTickets', data.myTicketsPrice, highlight: true),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _row('BookMyShow', data.bookMyShowPrice),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _row('Paytm Tickets', data.paytmPrice),
           if (data.hasSavings) ...[
-            SizedBox(height: AppDimensions.paddingSmall),
+            const SizedBox(height: AppDimensions.paddingSmall),
             Text(
               'You save ${CurrencyUtils.format(data.savings)} with MyTickets',
               style: AppTypography.bodySmall.copyWith(
@@ -64,15 +71,15 @@ class PriceComparisonCard extends StatelessWidget {
 
   Widget _row(String label, double price, {bool highlight = false}) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: highlight
-            ? AppColors.accentOffer.withValues(alpha: 0.12)
-            : Colors.transparent,
+            ? AppColors.accentOffer.withValues(alpha: 0.08)
+            : AppColors.surfaceElevated,
         borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
         border: highlight
-            ? Border.all(color: AppColors.accentOffer.withValues(alpha: 0.4))
-            : null,
+            ? Border.all(color: AppColors.accentOffer.withValues(alpha: 0.5))
+            : Border.all(color: AppColors.border),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -83,18 +90,18 @@ class PriceComparisonCard extends StatelessWidget {
                 label,
                 style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.textPrimary,
-                  fontWeight: highlight ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: highlight ? FontWeight.w700 : FontWeight.w500,
                 ),
               ),
               if (highlight) ...[
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: AppColors.accentOffer,
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Best Price',
                     style: TextStyle(
                       color: Colors.white,
@@ -112,6 +119,7 @@ class PriceComparisonCard extends StatelessWidget {
               color: highlight
                   ? AppColors.accentOffer
                   : AppColors.textSecondary,
+              fontWeight: highlight ? FontWeight.w700 : FontWeight.w500,
             ),
           ),
         ],

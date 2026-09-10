@@ -15,7 +15,7 @@ class _OnboardingSlide {
   final String subtitle;
   final Color color;
 
-  _OnboardingSlide({
+  const _OnboardingSlide({
     required this.icon,
     required this.title,
     required this.subtitle,
@@ -24,7 +24,7 @@ class _OnboardingSlide {
 }
 
 class OnboardingScreen extends ConsumerStatefulWidget {
-  OnboardingScreen({super.key});
+  const OnboardingScreen({super.key});
 
   @override
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -34,8 +34,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _controller = PageController();
   int _page = 0;
 
-  static List<_OnboardingSlide> _slides = [
-    _OnboardingSlide(
+  static final List<_OnboardingSlide> _slides = [
+    const _OnboardingSlide(
       icon: Icons.movie_filter_rounded,
       title: 'Discover & Book Movies',
       subtitle:
@@ -49,7 +49,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           'Concerts, comedy nights, food festivals and more — never miss what\'s happening in your city.',
       color: AppColors.accentEvent,
     ),
-    _OnboardingSlide(
+    const _OnboardingSlide(
       icon: Icons.train_rounded,
       title: 'Ride the Metro Smarter',
       subtitle:
@@ -98,26 +98,30 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 itemBuilder: (context, index) {
                   final slide = _slides[index];
                   return Padding(
-                    padding: EdgeInsets.all(AppDimensions.paddingLarge),
+                    padding: const EdgeInsets.all(AppDimensions.paddingLarge),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          width: 180,
-                          height: 180,
+                          width: 170,
+                          height: 170,
                           decoration: BoxDecoration(
-                            color: slide.color.withValues(alpha: 0.14),
+                            color: slide.color.withValues(alpha: 0.12),
                             shape: BoxShape.circle,
+                            border: Border.all(
+                              color: slide.color.withValues(alpha: 0.25),
+                              width: 2,
+                            ),
                           ),
-                          child: Icon(slide.icon, size: 84, color: slide.color),
+                          child: Icon(slide.icon, size: 80, color: slide.color),
                         ),
-                        SizedBox(height: AppDimensions.paddingXL),
+                        const SizedBox(height: AppDimensions.paddingXL),
                         Text(
                           slide.title,
                           style: AppTypography.displaySmall,
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: AppDimensions.paddingMedium),
+                        const SizedBox(height: AppDimensions.paddingMedium),
                         Text(
                           slide.subtitle,
                           style: AppTypography.bodyMedium,
@@ -140,7 +144,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(AppDimensions.paddingLarge),
+              padding: const EdgeInsets.all(AppDimensions.paddingLarge),
               child: AppButton(
                 label: isLast
                     ? AppLocale.tr('Get Started')
@@ -151,7 +155,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     _finish();
                   } else {
                     _controller.nextPage(
-                      duration: Duration(milliseconds: 350),
+                      duration: const Duration(milliseconds: 350),
                       curve: Curves.easeInOut,
                     );
                   }

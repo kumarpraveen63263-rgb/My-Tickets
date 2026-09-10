@@ -37,36 +37,50 @@ class AppTypography {
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
+    height: 1.35,
   );
 
   static TextStyle get titleMedium => GoogleFonts.poppins(
     fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
+    height: 1.4,
   );
 
   static TextStyle get bodyLarge => GoogleFonts.poppins(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
+    height: 1.5,
   );
 
   static TextStyle get bodyMedium => GoogleFonts.poppins(
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
+    height: 1.45,
   );
 
   static TextStyle get bodySmall => GoogleFonts.poppins(
     fontSize: 13,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
+    height: 1.4,
   );
 
   static TextStyle get caption => GoogleFonts.poppins(
     fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.textMuted,
+    height: 1.35,
+  );
+
+  static TextStyle get overline => GoogleFonts.poppins(
+    fontSize: 10,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 1.5,
+    color: AppColors.textMuted,
+    height: 1.2,
   );
 
   static TextStyle get button => GoogleFonts.poppins(

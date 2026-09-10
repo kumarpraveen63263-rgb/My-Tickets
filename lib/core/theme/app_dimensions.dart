@@ -1,10 +1,12 @@
 class AppDimensions {
   AppDimensions._();
 
+  static const double radiusXS = 4.0;
   static const double radiusSmall = 8.0;
   static const double radiusMedium = 12.0;
   static const double radiusLarge = 16.0;
   static const double radiusXL = 24.0;
+  static const double radiusFull = 999.0;
 
   static const double paddingXS = 4.0;
   static const double paddingSmall = 8.0;
@@ -12,7 +14,10 @@ class AppDimensions {
   static const double paddingLarge = 24.0;
   static const double paddingXL = 32.0;
 
+  static const double sectionSpacing = 28.0;
+
   static const double cardElevation = 0.0;
+  static const double cardBorderWidth = 1.0;
 
   static const double iconSmall = 16.0;
   static const double iconMedium = 24.0;

@@ -1,40 +1,29 @@
-import '../../../core/localization/app_localizations.dart';
-import 'dart:async';
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../core/config/maps_config.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../data/models/metro_model.dart';
 import '../../../data/repositories/metro_repository.dart';
 import '../../../providers/metro_provider.dart';
-import 'metro_line_style.dart';
 import 'metro_marker_icons.dart';
 
-/// A real, pannable/zoomable Google Map of the Chennai Metro network (Blue +
-/// Green lines) with tappable station markers.
-///
-/// Selecting "Set as From" / "Set as To" on a station writes straight into
-/// [fromStationProvider]/[toStationProvider] — the exact same state the
-/// text-based [StationSearchScreen] writes to — so a station picked on the
-/// map or picked by typing its name always stay in sync with each other.
+/// Full-featured interactive Chennai Metro map widget.
 class InteractiveMetroMap extends ConsumerStatefulWidget {
-  /// Fixed height for the embedded card use (e.g. on Metro Home). Pass
-  /// `null` to fill the available space instead (used in the fullscreen map
-  /// screen, where this widget sits inside an `Expanded`/`Positioned.fill`).
   final double? height;
   final EdgeInsets mapPadding;
+  final bool isFullScreen;
 
-  InteractiveMetroMap({
+  const InteractiveMetroMap({
     super.key,
-    this.height = 340,
+    this.height,
     this.mapPadding = EdgeInsets.zero,
+    this.isFullScreen = false,
   });
 
   @override
@@ -43,9 +32,7 @@ class InteractiveMetroMap extends ConsumerStatefulWidget {
 }
 
 class _InteractiveMetroMapState extends ConsumerState<InteractiveMetroMap> {
-  // Roughly the centroid of the Chennai Metro network; used only until the
-  // camera fits itself to the real station bounds in [onMapCreated].
-  static LatLng _chennaiCenter = LatLng(13.045, 80.235);
+  static const LatLng _chennaiCenter = LatLng(13.0827, 80.2707);
 
   GoogleMapController? _controller;
   Map<String, BitmapDescriptor>? _icons;
@@ -78,27 +65,37 @@ class _InteractiveMetroMapState extends ConsumerState<InteractiveMetroMap> {
 
   void _onMapCreated(GoogleMapController controller) {
     _controller = controller;
-    if (_boundsFitted) return;
+    if (_styleJson != null) {
+      // ignore: deprecated_member_use
+      controller.setMapStyle(_styleJson);
+    }
+    _fitBoundsOnce(ref.read(metroStationsProvider));
+  }
+
+  void _fitBoundsOnce(List<MetroStationModel> stations) {
+    if (_boundsFitted || _controller == null || stations.isEmpty) return;
     _boundsFitted = true;
-    // Fit the camera to the real network extent once, instead of guessing a
-    // zoom level — this is what makes the initial view feel "composed"
-    // rather than arbitrarily centered.
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        final stations = MetroRepository.allStations;
-        final lats = stations.map((s) => s.lat);
-        final lngs = stations.map((s) => s.lng);
-        final bounds = LatLngBounds(
-          southwest: LatLng(lats.reduce(math.min), lngs.reduce(math.min)),
-          northeast: LatLng(lats.reduce(math.max), lngs.reduce(math.max)),
-        );
-        await controller.animateCamera(
-          CameraUpdate.newLatLngBounds(bounds, 32),
-        );
-      } catch (_) {
-        // Falls back to the initial camera position — cosmetic only.
-      }
-    });
+
+    double minLat = stations.first.lat;
+    double maxLat = stations.first.lat;
+    double minLng = stations.first.lng;
+    double maxLng = stations.first.lng;
+
+    for (final s in stations) {
+      if (s.lat < minLat) minLat = s.lat;
+      if (s.lat > maxLat) maxLat = s.lat;
+      if (s.lng < minLng) minLng = s.lng;
+      if (s.lng > maxLng) maxLng = s.lng;
+    }
+
+    final bounds = LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+
+    _controller!.animateCamera(
+      CameraUpdate.newLatLngBounds(bounds, widget.isFullScreen ? 48.0 : 32.0),
+    );
   }
 
   @override
@@ -106,37 +103,38 @@ class _InteractiveMetroMapState extends ConsumerState<InteractiveMetroMap> {
     if (!MapsConfig.hasApiKey) {
       return _MapFallback(height: widget.height);
     }
-    if (_icons == null || _styleJson == null) {
-      return SizedBox(
+
+    if (_icons == null) {
+      return Container(
         height: widget.height,
-        child: Center(
+        color: AppColors.surface,
+        child: const Center(
           child: CircularProgressIndicator(color: AppColors.accentMetro),
         ),
       );
     }
 
+    final stations = ref.watch(metroStationsProvider);
     final from = ref.watch(fromStationProvider);
     final to = ref.watch(toStationProvider);
     final route = ref.watch(metroRouteProvider);
-    final uniqueStations = ref.watch(metroStationsProvider);
+
+    final markers = _buildMarkers(stations, from, to);
+    final polylines = _buildPolylines(route);
 
     final map = GoogleMap(
-      initialCameraPosition: CameraPosition(target: _chennaiCenter, zoom: 12),
-      style: _styleJson,
-      markers: _buildMarkers(uniqueStations, from, to),
-      polylines: _buildPolylines(route),
-      myLocationEnabled: true,
-      myLocationButtonEnabled: true,
+      initialCameraPosition: const CameraPosition(
+        target: _chennaiCenter,
+        zoom: 11.5,
+      ),
+      markers: markers,
+      polylines: polylines,
+      myLocationButtonEnabled: false,
+      myLocationEnabled: false,
       zoomControlsEnabled: false,
       mapToolbarEnabled: false,
       padding: widget.mapPadding,
       onMapCreated: _onMapCreated,
-      // Markers/polylines are derived from Riverpod selection state, not
-      // from the camera viewport, so nothing needs to recompute on every
-      // pan/zoom frame — the expensive case a naive `onCameraMove` listener
-      // would create. `onCameraIdle` (fires once per gesture, after the
-      // camera settles) is the reserved extension point for any future
-      // viewport-based work, e.g. marker clustering/culling at low zoom.
       onCameraIdle: () {},
     );
 
@@ -171,7 +169,7 @@ class _InteractiveMetroMapState extends ConsumerState<InteractiveMetroMap> {
         markerId: MarkerId(station.id),
         position: LatLng(station.lat, station.lng),
         icon: icon,
-        anchor: Offset(0.5, 0.5),
+        anchor: const Offset(0.5, 0.5),
         zIndexInt: isFrom || isTo ? 3 : (station.isInterchange ? 2 : 1),
         consumeTapEvents: true,
         onTap: () => _showStationSheet(station),
@@ -184,7 +182,9 @@ class _InteractiveMetroMapState extends ConsumerState<InteractiveMetroMap> {
         Polyline(
           polylineId: PolylineId('line_${line.name}'),
           points: stations.map((s) => LatLng(s.lat, s.lng)).toList(),
-          color: line.color,
+          color: line == MetroLine.blue
+              ? AppColors.metroLineBlue
+              : AppColors.metroLineGreen,
           width: 4,
           jointType: JointType.round,
           startCap: Cap.roundCap,
@@ -199,7 +199,7 @@ class _InteractiveMetroMapState extends ConsumerState<InteractiveMetroMap> {
     if (route != null && route.stations.length > 1) {
       polylines.add(
         Polyline(
-          polylineId: PolylineId('selected_route'),
+          polylineId: const PolylineId('selected_route'),
           points: route.stations.map((s) => LatLng(s.lat, s.lng)).toList(),
           color: AppColors.metroSelectedRoute,
           width: 6,
@@ -249,7 +249,7 @@ class _StationInfoSheet extends StatelessWidget {
   final VoidCallback onSetFrom;
   final VoidCallback onSetTo;
 
-  _StationInfoSheet({
+  const _StationInfoSheet({
     required this.station,
     required this.isOnBlue,
     required this.isOnGreen,
@@ -261,8 +261,8 @@ class _StationInfoSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        margin: EdgeInsets.all(AppDimensions.paddingMedium),
-        padding: EdgeInsets.all(AppDimensions.paddingMedium),
+        margin: const EdgeInsets.all(AppDimensions.paddingMedium),
+        padding: const EdgeInsets.all(AppDimensions.paddingMedium),
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
@@ -276,7 +276,7 @@ class _StationInfoSheet extends StatelessWidget {
               child: Container(
                 width: 36,
                 height: 4,
-                margin: EdgeInsets.only(bottom: AppDimensions.paddingMedium),
+                margin: const EdgeInsets.only(bottom: AppDimensions.paddingMedium),
                 decoration: BoxDecoration(
                   color: AppColors.border,
                   borderRadius: BorderRadius.circular(2),
@@ -293,13 +293,13 @@ class _StationInfoSheet extends StatelessWidget {
                       ? AppColors.metroInterchange
                       : AppColors.accentMetro,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(station.name, style: AppTypography.titleLarge),
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               children: [
@@ -308,18 +308,18 @@ class _StationInfoSheet extends StatelessWidget {
                   _lineChip('Green Line', AppColors.metroLineGreen),
               ],
             ),
-            SizedBox(height: AppDimensions.paddingLarge),
+            const SizedBox(height: AppDimensions.paddingLarge),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: onSetFrom,
-                    icon: Icon(Icons.trip_origin_rounded, size: 18),
+                    icon: const Icon(Icons.trip_origin_rounded, size: 18),
                     label: Text(context.tr('Set as From')),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.metroSelectedRoute,
-                      side: BorderSide(color: AppColors.metroSelectedRoute),
-                      padding: EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: AppColors.metroSelectedRoute),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                           AppDimensions.radiusMedium,
@@ -328,15 +328,15 @@ class _StationInfoSheet extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: onSetTo,
-                    icon: Icon(Icons.location_on_rounded, size: 18),
+                    icon: const Icon(Icons.location_on_rounded, size: 18),
                     label: Text(context.tr('Set as To')),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.accentMovie,
-                      padding: EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                           AppDimensions.radiusMedium,
@@ -355,7 +355,7 @@ class _StationInfoSheet extends StatelessWidget {
 
   Widget _lineChip(String label, Color color) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(6),
@@ -371,51 +371,96 @@ class _StationInfoSheet extends StatelessWidget {
   }
 }
 
-/// Shown wherever the interactive map would render, whenever
-/// [MapsConfig.hasApiKey] is `false` — keeps the app fully usable (via the
-/// existing text-based station search) without ever touching the native
-/// Google Maps SDK.
 class _MapFallback extends StatelessWidget {
   final double? height;
-  _MapFallback({required this.height});
+  const _MapFallback({required this.height});
 
   @override
   Widget build(BuildContext context) {
-    // No border/radius of its own — every call site already frames this
-    // widget (the embedded card on Metro Home, the fullscreen map screen),
-    // so adding a second one here would double up on top of it.
     return Container(
       height: height,
       width: double.infinity,
-      padding: EdgeInsets.all(AppDimensions.paddingLarge),
-      color: AppColors.surface,
+      padding: const EdgeInsets.all(AppDimensions.paddingLarge),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.map_outlined, color: AppColors.textMuted, size: 40),
-          SizedBox(height: 12),
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppColors.accentMetro.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.train_rounded,
+              color: AppColors.accentMetro,
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 14),
           Text(
-            context.tr('Live map not set up yet'),
-            style: AppTypography.titleMedium,
+            'Chennai Metro Network',
+            style: AppTypography.titleLarge,
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
-            'Add your Google Maps API key in AndroidManifest.xml and AppDelegate.swift, then set MapsConfig.hasApiKey to true.',
+            '41 stations across Blue Line (Wimco Nagar to Airport) & Green Line (Chennai Central to St. Thomas Mount).',
             style: AppTypography.bodySmall,
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: AppDimensions.paddingMedium),
-          OutlinedButton(
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.metroLineBlue.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.metroLineBlue.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  'Blue Line • 26 Stations',
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.metroLineBlue,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.metroLineGreen.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.metroLineGreen.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  'Green Line • 17 Stations',
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.metroLineGreen,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
             onPressed: () => context.push('/metro/search-station'),
+            icon: const Icon(Icons.search_rounded, size: 16),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.accentMetro,
-              side: BorderSide(color: AppColors.accentMetro),
+              side: const BorderSide(color: AppColors.accentMetro),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
               ),
             ),
-            child: Text(context.tr('Search stations instead')),
+            label: Text(context.tr('Search Stations')),
           ),
         ],
       ),

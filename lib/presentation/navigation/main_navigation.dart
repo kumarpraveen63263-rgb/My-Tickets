@@ -1,18 +1,16 @@
-import '../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_dimensions.dart';
 import '../../core/theme/app_typography.dart';
 
-/// Bottom-nav shell. The [StatefulNavigationShell] is the single source of
-/// truth for the active tab index and owns one persistent navigator + state
-/// per branch (via the underlying IndexedStack), so switching tabs preserves
-/// each tab's scroll position and navigation stack.
+/// Bottom-nav shell with responsive max-width support for web & mobile.
 class MainNavigation extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
-  MainNavigation({super.key, required this.navigationShell});
+  const MainNavigation({super.key, required this.navigationShell});
 
   List<_NavItem> _items(BuildContext context) => [
     _NavItem(
@@ -48,8 +46,7 @@ class MainNavigation extends StatelessWidget {
   ];
 
   void _onTap(int index) {
-    // Tapping the already-active tab pops that branch back to its root;
-    // tapping another tab switches branches (preserving the other stacks).
+    HapticFeedback.lightImpact();
     navigationShell.goBranch(
       index,
       initialLocation: index == navigationShell.currentIndex,
@@ -61,24 +58,41 @@ class MainNavigation extends StatelessWidget {
     final items = _items(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: navigationShell,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: navigationShell,
+        ),
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
-          border: Border(top: BorderSide(color: AppColors.border)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              offset: const Offset(0, -2),
+              blurRadius: 12,
+            ),
+          ],
+          border: const Border(top: BorderSide(color: AppColors.border)),
         ),
         child: SafeArea(
           top: false,
-          child: SizedBox(
-            height: AppDimensions.bottomNavHeight,
-            child: Row(
-              children: List.generate(items.length, (index) {
-                return _NavButton(
-                  item: items[index],
-                  isActive: index == navigationShell.currentIndex,
-                  onTap: () => _onTap(index),
-                );
-              }),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: SizedBox(
+                height: AppDimensions.bottomNavHeight,
+                child: Row(
+                  children: List.generate(items.length, (index) {
+                    return _NavButton(
+                      item: items[index],
+                      isActive: index == navigationShell.currentIndex,
+                      onTap: () => _onTap(index),
+                    );
+                  }),
+                ),
+              ),
             ),
           ),
         ),
@@ -106,39 +120,54 @@ class _NavButton extends StatelessWidget {
   final bool isActive;
   final VoidCallback onTap;
 
-  _NavButton({required this.item, required this.isActive, required this.onTap});
+  const _NavButton({
+    required this.item,
+    required this.isActive,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final color = isActive ? item.color : AppColors.textSecondary;
 
     return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedScale(
-              scale: isActive ? 1.18 : 1.0,
-              duration: Duration(milliseconds: 160),
-              curve: Curves.easeOutBack,
-              child: Icon(
-                isActive ? item.activeIcon : item.icon,
-                color: color,
-                size: 24,
+      child: Semantics(
+        label: '${item.label} tab',
+        selected: isActive,
+        button: true,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? item.color.withValues(alpha: 0.12)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+                ),
+                child: Icon(
+                  isActive ? item.activeIcon : item.icon,
+                  color: color,
+                  size: 22,
+                ),
               ),
-            ),
-            SizedBox(height: 4),
-            AnimatedDefaultTextStyle(
-              duration: Duration(milliseconds: 160),
-              style: AppTypography.caption.copyWith(
-                color: color,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+              const SizedBox(height: 2),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: AppTypography.caption.copyWith(
+                  color: color,
+                  fontSize: 11,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                ),
+                child: Text(item.label),
               ),
-              child: Text(item.label),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

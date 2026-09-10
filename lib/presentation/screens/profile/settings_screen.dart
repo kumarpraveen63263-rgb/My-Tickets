@@ -11,7 +11,7 @@ import '../../../providers/theme_provider.dart';
 import '../../../providers/language_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
-  SettingsScreen({super.key});
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,75 +24,100 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: Icon(Icons.arrow_back_rounded),
+          icon: const Icon(Icons.arrow_back_rounded),
         ),
         title: Text(context.tr('Settings')),
       ),
       body: ListView(
-        padding: EdgeInsets.all(AppDimensions.paddingMedium),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(AppDimensions.paddingMedium),
         children: [
           _sectionTitle('Preferences'),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: Icon(Icons.language_rounded, color: AppColors.accentMovie),
-            title: Text(context.tr('Language'), style: AppTypography.bodyLarge),
-            subtitle: Text(
-              supportedLanguages[language] ?? 'Tamil',
-              style: AppTypography.caption,
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+              border: Border.all(color: AppColors.border),
             ),
-            trailing: Icon(Icons.chevron_right_rounded),
-            onTap: () => _showLanguagePicker(context, ref),
-          ),
-          SizedBox(height: AppDimensions.paddingLarge),
-          _sectionTitle('Appearance'),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            activeThumbColor: AppColors.accentMovie,
-            value: isDark,
-            onChanged: (v) => ref.read(isDarkModeProvider.notifier).state = v,
-            title: Text(
-              context.tr('Dark Mode'),
-              style: AppTypography.bodyLarge,
-            ),
-            subtitle: Text(
-              context.tr(
-                'MyTickets is designed dark-first for the best viewing experience',
+            child: ListTile(
+              leading: const Icon(Icons.language_rounded, color: AppColors.accentMovie),
+              title: Text(context.tr('Language'), style: AppTypography.bodyMedium),
+              subtitle: Text(
+                supportedLanguages[language] ?? 'Tamil',
+                style: AppTypography.caption,
               ),
-              style: AppTypography.caption,
+              trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+              onTap: () => _showLanguagePicker(context, ref),
             ),
           ),
-          SizedBox(height: AppDimensions.paddingLarge),
-          _sectionTitle(context.tr('Notifications')),
-          StatefulBuilder(
-            builder: (context, setLocalState) => SwitchListTile(
-              contentPadding: EdgeInsets.zero,
+          const SizedBox(height: AppDimensions.paddingLarge),
+          _sectionTitle('Appearance'),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: SwitchListTile(
               activeThumbColor: AppColors.accentMovie,
-              value: storage.notificationsEnabled,
-              onChanged: (v) async {
-                await storage.setNotificationsEnabled(v);
-                setLocalState(() {});
-              },
+              value: isDark,
+              onChanged: (v) => ref.read(isDarkModeProvider.notifier).state = v,
               title: Text(
-                context.tr('Push Notifications'),
-                style: AppTypography.bodyLarge,
+                context.tr('Dark Mode'),
+                style: AppTypography.bodyMedium,
               ),
               subtitle: Text(
-                context.tr('Booking updates, reminders and offers'),
+                context.tr(
+                  'Switch to dark appearance',
+                ),
                 style: AppTypography.caption,
               ),
             ),
           ),
-          SizedBox(height: AppDimensions.paddingLarge),
-          _sectionTitle('About'),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(
-              context.tr('App Version'),
-              style: AppTypography.bodyLarge,
+          const SizedBox(height: AppDimensions.paddingLarge),
+          _sectionTitle(context.tr('Notifications')),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+              border: Border.all(color: AppColors.border),
             ),
-            trailing: Text(
-              '${AppConstants.appName} v0.1.0',
-              style: AppTypography.caption,
+            child: StatefulBuilder(
+              builder: (context, setLocalState) => SwitchListTile(
+                activeThumbColor: AppColors.accentMovie,
+                value: storage.notificationsEnabled,
+                onChanged: (v) async {
+                  await storage.setNotificationsEnabled(v);
+                  setLocalState(() {});
+                },
+                title: Text(
+                  context.tr('Push Notifications'),
+                  style: AppTypography.bodyMedium,
+                ),
+                subtitle: Text(
+                  context.tr('Booking updates, reminders and offers'),
+                  style: AppTypography.caption,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppDimensions.paddingLarge),
+          _sectionTitle('About'),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: ListTile(
+              title: Text(
+                context.tr('App Version'),
+                style: AppTypography.bodyMedium,
+              ),
+              trailing: Text(
+                '${AppConstants.appName} v0.1.0',
+                style: AppTypography.caption,
+              ),
             ),
           ),
         ],
@@ -104,11 +129,14 @@ class SettingsScreen extends ConsumerWidget {
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppDimensions.radiusLarge)),
+      ),
       builder: (sheetContext) {
         final currentLanguage = ref.read(languageProvider);
         return SafeArea(
           child: Padding(
-            padding: EdgeInsets.all(AppDimensions.paddingMedium),
+            padding: const EdgeInsets.all(AppDimensions.paddingMedium),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +145,7 @@ class SettingsScreen extends ConsumerWidget {
                   context.tr('Language Preference'),
                   style: AppTypography.titleLarge,
                 ),
-                SizedBox(height: AppDimensions.paddingSmall),
+                const SizedBox(height: AppDimensions.paddingSmall),
                 RadioGroup<String>(
                   groupValue: currentLanguage,
                   onChanged: (value) async {
@@ -154,8 +182,8 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _sectionTitle(String title) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 6),
-      child: Text(title, style: AppTypography.titleLarge),
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(title, style: AppTypography.titleMedium),
     );
   }
 }

@@ -4,9 +4,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../data/models/theatre_model.dart';
 import 'home_card_style.dart';
 
-/// Poster-style card for a cinema. The theatre model carries no photo, so the
-/// "poster" is an illustrated cinema motif with a "N shows today" chip overlay,
-/// keeping it consistent with the other Home poster cards.
+/// Poster-style card for a cinema.
 class TheatreCard extends StatelessWidget {
   final TheatreModel theatre;
   final double width;
@@ -29,7 +27,7 @@ class TheatreCard extends StatelessWidget {
       _titleHeight +
       2 +
       _metaHeight +
-      20; // + inner padding
+      20;
 
   @override
   Widget build(BuildContext context) {
@@ -98,22 +96,25 @@ class TheatreCard extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          const DecoratedBox(
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF2A2A38), Color(0xFF13131A)],
+                colors: [
+                  AppColors.accentMovie.withValues(alpha: 0.12),
+                  AppColors.accentMovie.withValues(alpha: 0.04),
+                ],
               ),
             ),
           ),
-          const Positioned(
+          Positioned(
             right: -8,
             bottom: -8,
             child: Icon(
               Icons.theaters_rounded,
               size: 96,
-              color: Color(0x22FFFFFF),
+              color: AppColors.accentMovie.withValues(alpha: 0.08),
             ),
           ),
           const Center(
@@ -130,7 +131,7 @@ class TheatreCard extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.6),
+                  color: AppColors.accentMovie,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -138,6 +139,7 @@ class TheatreCard extends StatelessWidget {
                   style: AppTypography.caption.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
+                    fontSize: 10,
                   ),
                 ),
               ),

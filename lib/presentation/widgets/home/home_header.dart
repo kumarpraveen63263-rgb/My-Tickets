@@ -28,7 +28,7 @@ String _greeting() {
 }
 
 class HomeHeader extends ConsumerWidget {
-  HomeHeader({super.key});
+  const HomeHeader({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

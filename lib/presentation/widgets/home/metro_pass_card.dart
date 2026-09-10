@@ -33,15 +33,19 @@ class MetroPassCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(AppDimensions.paddingMedium),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF0B2A44), Color(0xFF13131A)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
             border: Border.all(
-              color: AppColors.accentMetro.withValues(alpha: 0.5),
+              color: AppColors.accentMetro.withValues(alpha: 0.3),
+              width: 1.5,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.accentMetro.withValues(alpha: 0.08),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Stack(
             children: [
@@ -50,19 +54,29 @@ class MetroPassCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        context.tr('METRO'),
-                        style: AppTypography.caption.copyWith(
-                          color: AppColors.accentMetro,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.accentMetro.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          context.tr('METRO'),
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.accentMetro,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1,
+                          ),
                         ),
                       ),
                       const Spacer(),
                       const Icon(
-                        Icons.confirmation_number_outlined,
-                        size: 16,
-                        color: AppColors.textSecondary,
+                        Icons.train_rounded,
+                        size: 18,
+                        color: AppColors.accentMetro,
                       ),
                     ],
                   ),
@@ -76,6 +90,7 @@ class MetroPassCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: AppTypography.titleMedium.copyWith(
                             height: 1.1,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -95,6 +110,7 @@ class MetroPassCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: AppTypography.titleMedium.copyWith(
                             height: 1.1,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -105,14 +121,16 @@ class MetroPassCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Divider(
-                          color: AppColors.accentMetro.withValues(alpha: 0.6),
+                          color: AppColors.accentMetro.withValues(alpha: 0.4),
                           thickness: 1.5,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         '${route.result.stations.length} ${context.tr('stops')}',
-                        style: AppTypography.caption,
+                        style: AppTypography.caption.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -133,8 +151,8 @@ class MetroPassCard extends StatelessWidget {
                 ],
               ),
               Positioned(
-                top: -10,
-                right: -10,
+                top: -8,
+                right: -8,
                 child: IconButton(
                   tooltip: isFavourite
                       ? context.tr('Remove from favourites')
@@ -147,6 +165,7 @@ class MetroPassCard extends StatelessWidget {
                     color: isFavourite
                         ? AppColors.error
                         : AppColors.textSecondary,
+                    size: 20,
                   ),
                 ),
               ),
@@ -161,13 +180,14 @@ class MetroPassCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.35),
+        color: AppColors.surfaceElevated,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: AppColors.textPrimary),
+          Icon(icon, size: 13, color: AppColors.accentMetro),
           const SizedBox(width: 3),
           Text(
             label,

@@ -21,16 +21,32 @@ class ConnectivityBanner extends ConsumerWidget {
     final isOffline = connected.maybeWhen(data: (v) => !v, orElse: () => false);
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      height: isOffline ? 32 : 0,
-      color: AppColors.warning,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      height: isOffline ? 36 : 0,
+      color: AppColors.error,
       alignment: Alignment.center,
       child: isOffline
-          ? Text(
-              'No internet connection',
-              style: AppTypography.caption.copyWith(
-                color: Colors.black87,
-                fontWeight: FontWeight.w600,
+          ? Semantics(
+              liveRegion: true,
+              label: 'No internet connection',
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.wifi_off_rounded,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'No internet connection — showing cached data',
+                    style: AppTypography.caption.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             )
           : null,

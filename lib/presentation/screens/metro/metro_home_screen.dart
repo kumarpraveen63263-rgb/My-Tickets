@@ -11,7 +11,7 @@ import '../../widgets/metro/interactive_metro_map.dart';
 import '../../widgets/metro/route_card.dart';
 
 class MetroHomeScreen extends ConsumerWidget {
-  MetroHomeScreen({super.key});
+  const MetroHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,173 +19,188 @@ class MetroHomeScreen extends ConsumerWidget {
     final to = ref.watch(toStationProvider);
     final recentRoutes = ref.watch(recentRoutesProvider);
 
-    return SafeArea(
-      child: ListView(
-        padding: EdgeInsets.all(AppDimensions.paddingMedium),
-        children: [
-          Row(
-            children: [
-              Icon(Icons.train_rounded, color: AppColors.accentMetro, size: 26),
-              SizedBox(width: 8),
-              Text('Metro Tickets', style: AppTypography.displaySmall),
-              Spacer(),
-              IconButton(
-                onPressed: () => context.push('/metro/map'),
-                icon: Icon(Icons.map_outlined, color: AppColors.accentMetro),
-              ),
-            ],
-          ),
-          SizedBox(height: AppDimensions.paddingMedium),
-          Container(
-            padding: EdgeInsets.all(AppDimensions.paddingMedium),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(AppDimensions.paddingMedium),
+          children: [
+            Row(
               children: [
-                _stationField(
-                  context,
-                  ref,
-                  label: context.tr('From'),
-                  value: from,
-                  isFrom: true,
+                const Icon(Icons.train_rounded, color: AppColors.accentMetro, size: 26),
+                const SizedBox(width: 8),
+                Text('Metro Tickets', style: AppTypography.displaySmall),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => context.push('/metro/map'),
+                  icon: const Icon(Icons.map_outlined, color: AppColors.accentMetro),
                 ),
-                Stack(
-                  alignment: Alignment.centerRight,
-                  children: [
-                    Divider(height: 1),
-                    Positioned(
-                      right: 8,
-                      child: Container(
-                        decoration: BoxDecoration(
+              ],
+            ),
+            const SizedBox(height: AppDimensions.paddingMedium),
+            Container(
+              padding: const EdgeInsets.all(AppDimensions.paddingMedium),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+                border: Border.all(color: AppColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  _stationField(
+                    context,
+                    ref,
+                    label: context.tr('From'),
+                    value: from,
+                    isFrom: true,
+                  ),
+                  Stack(
+                    alignment: Alignment.centerRight,
+                    children: [
+                      const Divider(height: 1),
+                      Positioned(
+                        right: 8,
+                        child: Material(
                           color: AppColors.accentMetro,
                           borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.swap_vert_rounded,
-                            color: Colors.white,
-                            size: 18,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            onTap: () {
+                              final f = ref.read(fromStationProvider);
+                              final t = ref.read(toStationProvider);
+                              ref.read(fromStationProvider.notifier).state = t;
+                              ref.read(toStationProvider.notifier).state = f;
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.swap_vert_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
                           ),
-                          onPressed: () {
-                            final f = ref.read(fromStationProvider);
-                            final t = ref.read(toStationProvider);
-                            ref.read(fromStationProvider.notifier).state = t;
-                            ref.read(toStationProvider.notifier).state = f;
-                          },
                         ),
                       ),
+                    ],
+                  ),
+                  _stationField(
+                    context,
+                    ref,
+                    label: context.tr('To'),
+                    value: to,
+                    isFrom: false,
+                  ),
+                  const SizedBox(height: AppDimensions.paddingMedium),
+                  AppButton(
+                    label: context.tr('Check Route'),
+                    accentColor: AppColors.accentMetro,
+                    onPressed: from == null || to == null
+                        ? null
+                        : () {
+                            ref
+                                .read(recentRoutesProvider.notifier)
+                                .addRoute(from, to);
+                            context.push('/metro/route');
+                          },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppDimensions.paddingMedium),
+            Container(
+              padding: const EdgeInsets.all(AppDimensions.paddingMedium),
+              decoration: BoxDecoration(
+                color: AppColors.success.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                border: Border.all(color: AppColors.success.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.success),
+                  const SizedBox(width: 8),
+                  Text(
+                    context.tr('All lines operational'),
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.success,
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
-                ),
-                _stationField(
-                  context,
-                  ref,
-                  label: context.tr('To'),
-                  value: to,
-                  isFrom: false,
-                ),
-                SizedBox(height: AppDimensions.paddingMedium),
-                AppButton(
-                  label: context.tr('Check Route'),
-                  accentColor: AppColors.accentMetro,
-                  onPressed: from == null || to == null
-                      ? null
-                      : () {
-                          ref
-                              .read(recentRoutesProvider.notifier)
-                              .addRoute(from, to);
-                          context.push('/metro/route');
-                        },
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          SizedBox(height: AppDimensions.paddingLarge),
-          Container(
-            padding: EdgeInsets.all(AppDimensions.paddingMedium),
-            decoration: BoxDecoration(
-              color: AppColors.success.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-            ),
-            child: Row(
+            const SizedBox(height: AppDimensions.paddingLarge),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(Icons.circle, size: 8, color: AppColors.success),
-                SizedBox(width: 8),
                 Text(
-                  context.tr('All lines operational'),
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.success,
+                  context.tr('Live Network Map'),
+                  style: AppTypography.titleLarge,
+                ),
+                GestureDetector(
+                  onTap: () => context.push('/metro/map'),
+                  child: Text(
+                    'Fullscreen',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.accentMetro,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-          SizedBox(height: AppDimensions.paddingLarge),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            const SizedBox(height: AppDimensions.paddingSmall),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+                border: Border.all(color: AppColors.border),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: const InteractiveMetroMap(height: 340),
+            ),
+            const SizedBox(height: AppDimensions.paddingLarge),
+            if (recentRoutes.isNotEmpty) ...[
               Text(
-                context.tr('Live Network Map'),
+                context.tr('Recently Travelled'),
                 style: AppTypography.titleLarge,
               ),
-              GestureDetector(
-                onTap: () => context.push('/metro/map'),
-                child: Text(
-                  'Fullscreen',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.accentMetro,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+              const SizedBox(height: AppDimensions.paddingSmall),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: recentRoutes
+                    .map(
+                      (r) => RouteCard(
+                        from: r.from,
+                        to: r.to,
+                        onTap: () {
+                          ref.read(fromStationProvider.notifier).state = r.from;
+                          ref.read(toStationProvider.notifier).state = r.to;
+                          context.push('/metro/route');
+                        },
+                      ),
+                    )
+                    .toList(),
               ),
+              const SizedBox(height: AppDimensions.paddingLarge),
             ],
-          ),
-          SizedBox(height: AppDimensions.paddingSmall),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
-              border: Border.all(color: AppColors.border),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: InteractiveMetroMap(height: 340),
-          ),
-          SizedBox(height: AppDimensions.paddingLarge),
-          if (recentRoutes.isNotEmpty) ...[
+            Text(context.tr('Favourite Routes'), style: AppTypography.titleLarge),
+            const SizedBox(height: AppDimensions.paddingSmall),
             Text(
-              context.tr('Recently Travelled'),
-              style: AppTypography.titleLarge,
+              'Save routes you travel often for quick access.',
+              style: AppTypography.bodySmall,
             ),
-            SizedBox(height: AppDimensions.paddingSmall),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: recentRoutes
-                  .map(
-                    (r) => RouteCard(
-                      from: r.from,
-                      to: r.to,
-                      onTap: () {
-                        ref.read(fromStationProvider.notifier).state = r.from;
-                        ref.read(toStationProvider.notifier).state = r.to;
-                        context.push('/metro/route');
-                      },
-                    ),
-                  )
-                  .toList(),
-            ),
-            SizedBox(height: AppDimensions.paddingLarge),
+            const SizedBox(height: AppDimensions.bottomPadding),
           ],
-          Text(context.tr('Favourite Routes'), style: AppTypography.titleLarge),
-          SizedBox(height: AppDimensions.paddingSmall),
-          Text(
-            'Save routes you travel often for quick access.',
-            style: AppTypography.bodySmall,
-          ),
-          SizedBox(height: AppDimensions.bottomPadding),
-        ],
+        ),
       ),
     );
   }
@@ -209,7 +224,7 @@ class MetroHomeScreen extends ConsumerWidget {
         }
       },
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: AppDimensions.paddingMedium),
+        padding: const EdgeInsets.symmetric(vertical: AppDimensions.paddingMedium),
         child: Row(
           children: [
             Icon(
@@ -217,7 +232,7 @@ class MetroHomeScreen extends ConsumerWidget {
               size: 18,
               color: AppColors.accentMetro,
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,7 +249,7 @@ class MetroHomeScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
           ],
         ),
       ),

@@ -19,7 +19,7 @@ import '../../widgets/common/app_loader.dart';
 class EventDetailScreen extends ConsumerWidget {
   final String eventId;
 
-  EventDetailScreen({super.key, required this.eventId});
+  const EventDetailScreen({super.key, required this.eventId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,7 +29,7 @@ class EventDetailScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: eventAsync.when(
-        loading: () => AppLoader(color: AppColors.accentEvent),
+        loading: () => const AppLoader(color: AppColors.accentEvent),
         error: (_, _) => AppErrorWidget(
           onRetry: () => ref.invalidate(eventDetailProvider(eventId)),
         ),
@@ -38,7 +38,7 @@ class EventDetailScreen extends ConsumerWidget {
       bottomNavigationBar: eventAsync.maybeWhen(
         data: (event) => SafeArea(
           child: Padding(
-            padding: EdgeInsets.all(AppDimensions.paddingMedium),
+            padding: const EdgeInsets.all(AppDimensions.paddingMedium),
             child: AppButton(
               label: context.tr('Book Tickets'),
               accentColor: AppColors.accentEvent,
@@ -48,7 +48,7 @@ class EventDetailScreen extends ConsumerWidget {
             ),
           ),
         ),
-        orElse: () => SizedBox.shrink(),
+        orElse: () => const SizedBox.shrink(),
       ),
     );
   }
@@ -92,6 +92,7 @@ class EventDetailScreen extends ConsumerWidget {
       children: [
         ListView(
           padding: EdgeInsets.zero,
+          physics: const BouncingScrollPhysics(),
           children: [
             Stack(
               children: [
@@ -107,8 +108,13 @@ class EventDetailScreen extends ConsumerWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, AppColors.background],
-                        stops: [0.5, 1],
+                        colors: [
+                          Colors.black.withValues(alpha: 0.3),
+                          Colors.transparent,
+                          AppColors.background.withValues(alpha: 0.8),
+                          AppColors.background,
+                        ],
+                        stops: const [0.0, 0.3, 0.7, 1.0],
                       ),
                     ),
                   ),
@@ -116,12 +122,12 @@ class EventDetailScreen extends ConsumerWidget {
               ],
             ),
             Padding(
-              padding: EdgeInsets.all(AppDimensions.paddingMedium),
+              padding: const EdgeInsets.all(AppDimensions.paddingMedium),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.accentEvent,
                       borderRadius: BorderRadius.circular(6),
@@ -130,13 +136,13 @@ class EventDetailScreen extends ConsumerWidget {
                       event.category,
                       style: AppTypography.caption.copyWith(
                         color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(event.title, style: AppTypography.displaySmall),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   _infoRow(
                     Icons.calendar_today_rounded,
                     AppDateUtils.formatFullDate(event.date),
@@ -150,23 +156,23 @@ class EventDetailScreen extends ConsumerWidget {
                     Icons.person_rounded,
                     'Organized by ${event.organizer}',
                   ),
-                  SizedBox(height: AppDimensions.paddingMedium),
+                  const SizedBox(height: AppDimensions.paddingMedium),
                   Text(context.tr('About'), style: AppTypography.titleLarge),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   Text(
                     event.description,
                     style: AppTypography.bodyMedium.copyWith(height: 1.5),
                   ),
-                  SizedBox(height: AppDimensions.paddingLarge),
+                  const SizedBox(height: AppDimensions.paddingLarge),
                   Text(
                     'Select Ticket Category',
                     style: AppTypography.titleLarge,
                   ),
-                  SizedBox(height: AppDimensions.paddingSmall),
+                  const SizedBox(height: AppDimensions.paddingSmall),
                   ...event.ticketCategories.map(
                     (c) => _ticketCategoryTile(ref, c, selectedCategory),
                   ),
-                  SizedBox(height: AppDimensions.bottomPadding),
+                  const SizedBox(height: AppDimensions.bottomPadding),
                 ],
               ),
             ),
@@ -174,11 +180,13 @@ class EventDetailScreen extends ConsumerWidget {
         ),
         Positioned(
           top: MediaQuery.of(context).padding.top + 8,
-          left: 8,
-          child: CircleAvatar(
-            backgroundColor: Colors.black.withValues(alpha: 0.5),
+          left: 12,
+          child: Material(
+            color: Colors.white.withValues(alpha: 0.9),
+            shape: const CircleBorder(),
+            elevation: 3,
             child: IconButton(
-              icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
+              icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
               onPressed: () => context.pop(),
             ),
           ),
@@ -189,11 +197,11 @@ class EventDetailScreen extends ConsumerWidget {
 
   Widget _infoRow(IconData icon, String text) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
           Icon(icon, size: 16, color: AppColors.accentEvent),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               text,
@@ -213,19 +221,21 @@ class EventDetailScreen extends ConsumerWidget {
     String? selected,
   ) {
     final isSelected = category.name == selected;
-    return GestureDetector(
+    return InkWell(
       onTap: () => ref.read(selectedTicketCategoryProvider.notifier).state =
           category.name,
+      borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
       child: Container(
-        margin: EdgeInsets.only(bottom: 10),
-        padding: EdgeInsets.all(AppDimensions.paddingMedium),
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(AppDimensions.paddingMedium),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.accentEvent.withValues(alpha: 0.12)
+              ? AppColors.accentEvent.withValues(alpha: 0.08)
               : AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
           border: Border.all(
             color: isSelected ? AppColors.accentEvent : AppColors.border,
+            width: isSelected ? 1.5 : 1.0,
           ),
         ),
         child: Row(
@@ -239,7 +249,7 @@ class EventDetailScreen extends ConsumerWidget {
                   : AppColors.textSecondary,
               size: 20,
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,8 +266,9 @@ class EventDetailScreen extends ConsumerWidget {
               category.price == 0
                   ? 'Free'
                   : CurrencyUtils.format(category.price),
-              style: AppTypography.titleMedium.copyWith(
+              style: AppTypography.titleLarge.copyWith(
                 color: AppColors.accentEvent,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],

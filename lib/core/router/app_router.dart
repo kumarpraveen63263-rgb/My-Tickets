@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../presentation/navigation/main_navigation.dart';
 import '../../presentation/screens/auth/login_screen.dart';
@@ -17,6 +17,7 @@ import '../../presentation/screens/metro/metro_ticket_screen.dart';
 import '../../presentation/screens/metro/station_search_screen.dart';
 import '../../presentation/screens/movies/movie_detail_screen.dart';
 import '../../presentation/screens/movies/movies_list_screen.dart';
+import '../../presentation/screens/movies/show_timing_screen.dart';
 import '../../presentation/screens/movies/theatre_list_screen.dart';
 import '../../presentation/screens/onboarding/onboarding_screen.dart';
 import '../../presentation/screens/profile/edit_profile_screen.dart';
@@ -27,6 +28,9 @@ import '../../presentation/screens/search/search_screen.dart';
 import '../../presentation/screens/splash/splash_screen.dart';
 import '../../presentation/screens/tickets/my_tickets_screen.dart';
 import '../../presentation/screens/tickets/ticket_detail_screen.dart';
+import '../../presentation/widgets/common/app_button.dart';
+import '../../presentation/widgets/common/app_empty_state.dart';
+import '../theme/app_colors.dart';
 import 'app_transitions.dart';
 
 class AppRouter {
@@ -58,10 +62,10 @@ class AppRouter {
     navigatorKey: _rootKey,
     initialLocation: '/',
     routes: [
-      GoRoute(path: '/', builder: (context, state) => SplashScreen()),
+      GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
       GoRoute(
         path: '/onboarding',
-        builder: (context, state) => OnboardingScreen(),
+        builder: (context, state) => const OnboardingScreen(),
       ),
       GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
       GoRoute(
@@ -70,8 +74,7 @@ class AppRouter {
             OtpScreen(phone: state.extra as String? ?? ''),
       ),
 
-      // ---- Bottom-nav shell: a single IndexedStack of 5 branches. The active
-      // branch index is the ONE source of truth held by StatefulNavigationShell.
+      // ---- Bottom-nav shell: a single IndexedStack of 5 branches.
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             MainNavigation(navigationShell: navigationShell),
@@ -82,7 +85,7 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/home',
-                builder: (context, state) => HomeScreen(),
+                builder: (context, state) => const HomeScreen(),
                 routes: [
                   GoRoute(
                     path: 'search',
@@ -90,7 +93,7 @@ class AppRouter {
                   ),
                   GoRoute(
                     path: 'tickets',
-                    builder: (context, state) => MyTicketsScreen(),
+                    builder: (context, state) => const MyTicketsScreen(),
                   ),
                 ],
               ),
@@ -102,7 +105,7 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/movies',
-                builder: (context, state) => MoviesListScreen(isTab: true),
+                builder: (context, state) => const MoviesListScreen(isTab: true),
               ),
             ],
           ),
@@ -112,7 +115,7 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/events',
-                builder: (context, state) => EventsHomeScreen(),
+                builder: (context, state) => const EventsHomeScreen(),
                 routes: [
                   GoRoute(
                     path: 'search',
@@ -120,7 +123,7 @@ class AppRouter {
                   ),
                   GoRoute(
                     path: 'list',
-                    builder: (context, state) => EventsListScreen(),
+                    builder: (context, state) => const EventsListScreen(),
                   ),
                 ],
               ),
@@ -132,7 +135,7 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/metro',
-                builder: (context, state) => MetroHomeScreen(),
+                builder: (context, state) => const MetroHomeScreen(),
               ),
             ],
           ),
@@ -142,7 +145,7 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/profile',
-                builder: (context, state) => ProfileScreen(),
+                builder: (context, state) => const ProfileScreen(),
               ),
             ],
           ),
@@ -164,6 +167,14 @@ class AppRouter {
         pageBuilder: (context, state) => AppTransitions.sharedAxis(
           state,
           TheatreListScreen(movieId: state.pathParameters['id']!),
+        ),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootKey,
+        path: '/movies/:id/shows',
+        pageBuilder: (context, state) => AppTransitions.sharedAxis(
+          state,
+          ShowTimingScreen(movieId: state.pathParameters['id']!),
         ),
       ),
       GoRoute(
@@ -251,11 +262,32 @@ class AppRouter {
         parentNavigatorKey: _rootKey,
         path: '/profile/settings',
         pageBuilder: (context, state) =>
-            AppTransitions.sharedAxis(state, SettingsScreen()),
+            AppTransitions.sharedAxis(state, const SettingsScreen()),
       ),
     ],
-    errorBuilder: (context, state) =>
-        Scaffold(body: Center(child: Text('Page not found: ${state.uri}'))),
+    errorBuilder: (context, state) => Scaffold(
+      backgroundColor: AppColors.background,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const AppEmptyState(
+                icon: Icons.error_outline_rounded,
+                title: 'Page Not Found',
+                subtitle: 'The page you are looking for does not exist.',
+              ),
+              const SizedBox(height: 20),
+              AppButton(
+                label: 'Go Home',
+                fullWidth: false,
+                onPressed: () => context.go('/home'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
   );
 }
-
